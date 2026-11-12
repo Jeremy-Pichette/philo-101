@@ -916,6 +916,7 @@ async function downloadAudios(){
   try{
     const c = await caches.open(AUDIO_CACHE);
     const urls = audioUrls();
+    for (const r of await c.keys()) if (!urls.includes(r.url)) await c.delete(r);   // anciennes versions des audios
     const sizes = []; let total = 0, done = 0;
     for (const u of urls){ try{ const h = await fetch(u, { method: 'HEAD', cache: 'no-store' }); const n = +h.headers.get('content-length') || 0; sizes.push(n); total += n; }catch(e){ sizes.push(0); } }
     if (!total) total = 49.8e6;

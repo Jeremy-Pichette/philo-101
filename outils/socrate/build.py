@@ -39,7 +39,7 @@ tim=json.load(open('textes-timing.json')) if os.path.exists('textes-timing.json'
 for t,(key,short) in zip(texts,[('apologie','Apologie'),('criton','Criton')]):
     t['short']=short
     if key in tim:
-        t['audio']='audio/texte-%s.m4a'%key; t['duration']=tim[key]['duration']
+        t['audio']='audio/'+tim[key].get('file','texte-%s.m4a'%key); t['duration']=tim[key]['duration']
         by={x['n']:x['sents'] for x in tim[key]['paras']}
         for para in t['paras']:
             if para['n'] in by:

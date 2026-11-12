@@ -6,98 +6,194 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f1e9">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14110e">
+<script>
+/* Retour depuis un module : la transition glisse dans l'autre sens */
+try { if (sessionStorage.getItem('philo:nav') === 'back') { document.documentElement.classList.add('vt-back'); sessionStorage.removeItem('philo:nav'); } } catch (e) {}
+/* Thème appliqué avant le premier rendu : iOS lit la couleur de la barre d'état au chargement */
+(function(){
+  var C = { light: '#f6f1e9', dark: '#14110e' }, t = 'auto';
+  try { t = JSON.parse(localStorage.getItem('philo:theme') || localStorage.getItem('socrate:theme')) || 'auto'; } catch (e) {}
+  if (t !== 'light' && t !== 'dark') return;
+  var r = document.documentElement;
+  r.setAttribute('data-theme', t); r.style.colorScheme = t;
+  var cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t);
+  var ms = document.querySelectorAll('meta[name="theme-color"]');
+  for (var i = 0; i < ms.length; i++) ms[i].parentNode.removeChild(ms[i]);
+  var m = document.createElement('meta'); m.name = 'theme-color'; m.content = C[t];
+  cs.insertAdjacentElement('afterend', m);
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Philo 101">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <title>Philo 101</title>
 <style>
-:root{--bg:#f6f1e9;--card:#fffdf9;--ink:#1d1a16;--ink-2:#5d564c;--ink-3:#8c8478;--line:rgba(60,45,25,.12);--accent:#b4532a;--accent-soft:rgba(180,83,42,.12);
-  --shadow:0 1px 2px rgba(40,30,15,.06),0 8px 24px rgba(40,30,15,.08);--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif}
-@media (prefers-color-scheme:dark){:root{--bg:#14110e;--card:#211d18;--ink:#f1ebe2;--ink-2:#b9b0a3;--ink-3:#857c70;--line:rgba(255,240,220,.1);--accent:#e0794a;--accent-soft:rgba(224,121,74,.16);--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3)}}
+:root{--bg:#f6f1e9;--bg-2:#efe8dc;--card:#fffdf9;--ink:#1d1a16;--ink-2:#5d564c;--ink-3:#8c8478;--line:rgba(60,45,25,.12);--accent:#b4532a;--accent-ink:#fff;--accent-soft:rgba(180,83,42,.12);
+  --good:#2f7d4f;--shadow:0 1px 2px rgba(40,30,15,.06),0 8px 24px rgba(40,30,15,.08);
+  --ease-out:cubic-bezier(.23,1,.32,1);--ease-drawer:cubic-bezier(.32,.72,0,1);
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14110e;--bg-2:#1c1814;--card:#211d18;--ink:#f1ebe2;--ink-2:#b9b0a3;--ink-3:#857c70;--line:rgba(255,240,220,.1);--accent:#e0794a;--accent-ink:#1a0f08;--accent-soft:rgba(224,121,74,.16);--good:#5fbf86;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{--bg:#14110e;--bg-2:#1c1814;--card:#211d18;--ink:#f1ebe2;--ink-2:#b9b0a3;--ink-3:#857c70;--line:rgba(255,240,220,.1);--accent:#e0794a;--accent-ink:#1a0f08;--accent-soft:rgba(224,121,74,.16);--good:#5fbf86;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3)}
 *{box-sizing:border-box}
-html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
-main{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 48px) 16px calc(env(safe-area-inset-bottom,0px) + 40px)}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100dvh}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+a{color:inherit;text-decoration:none;-webkit-touch-callout:none}
+main{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 40px) 16px calc(env(safe-area-inset-bottom,0px) + 40px)}
 .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
 h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
-.lead{color:var(--ink-2);font-size:17px;margin:0 0 32px}
-.h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 4px 10px}
-a{color:inherit;text-decoration:none}
-.card{display:block;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:20px;margin-bottom:12px;transition:transform .14s cubic-bezier(.23,1,.32,1)}
+.lead{color:var(--ink-2);font-size:17px;margin:0 0 28px}
+.h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:28px 4px 10px}
+.card{display:block;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px;margin-bottom:12px;transition:transform .14s var(--ease-out)}
 .card:active{transform:scale(.98)}
 .card .top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
-.mono{flex:none;width:52px;height:52px;border-radius:14px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:30px}
+.mono{flex:none;width:52px;height:52px;border-radius:14px;background:linear-gradient(#c25f33,#a24a24);color:#f6f1e9;display:grid;place-items:center;font-family:var(--serif);font-size:30px}
 .card h2{font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.01em;margin:0}
 .card .sub{color:var(--ink-3);font-size:14px}
-.card p{margin:0 0 14px;color:var(--ink-2);font-size:15.5px}
+.card .go{margin-left:auto;width:20px;height:20px;color:var(--ink-3);flex:none}
+.card p{margin:0 0 12px;color:var(--ink-2);font-size:15.5px}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{font-size:12.5px;font-weight:650;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
-.links{display:grid;gap:8px;margin-top:4px}
-.link{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;font-size:15.5px;font-weight:550}
-.link span{color:var(--ink-3);font-weight:400;font-size:13.5px}
+.progress{display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}
+.progress[hidden]{display:none}
+.progress b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
 .soon{opacity:.55;box-shadow:none;border:1.5px dashed var(--line);background:none}
-.install{display:none;align-items:center;gap:12px;background:var(--card);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;margin:0 0 24px}
+.soon:active{transform:none}
+.list{background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.link{display:flex;align-items:center;gap:12px;padding:13px 16px;font-size:15.5px;font-weight:550;transition:background-color .15s ease}
+.link+.link{border-top:1px solid var(--line)}
+.link:active{background:var(--bg-2)}
+.link .ic{flex:none;width:30px;height:30px;border-radius:8px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.link .ic svg{width:17px;height:17px}
+.link .t{flex:1;min-width:0}
+.link .m{color:var(--ink-3);font-weight:400;font-size:13.5px;flex:none}
+.install{display:none;align-items:center;gap:12px;background:var(--card);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;margin:0 0 8px}
 .install.show{display:flex}
 .install img{width:44px;height:44px;border-radius:10px;flex:none}
 .install div{flex:1;font-size:14px;color:var(--ink-2);line-height:1.4}
 .install b{display:block;color:var(--ink);font-size:15px}
-.install button{flex:none;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:650;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer}
-.install .x{background:none;color:var(--ink-3);padding:6px;font-size:20px;line-height:1}
-footer{color:var(--ink-3);font-size:13px;margin-top:36px;text-align:center}
-@media (hover:hover) and (pointer:fine){.card:hover,.link:hover{transform:translateY(-2px)}}
-@media (prefers-reduced-motion:reduce){.card,.link{transition:none}}
+.install .ok{flex:none;background:var(--accent);color:var(--accent-ink);font-weight:650;font-size:14px;padding:8px 14px;border-radius:999px}
+.install .x{color:var(--ink-3);padding:6px;font-size:22px;line-height:1}
+.settings{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:6px 16px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.row label{font-weight:550}
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg-2);border-radius:10px;padding:2px;min-width:210px}
+.seg-thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px)/3);border-radius:8px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.05);transition:transform .32s var(--ease-drawer)}
+.seg button{position:relative;z-index:1;padding:6px 0;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:color .2s ease}
+.seg button[aria-pressed="true"]{color:var(--ink)}
+footer{color:var(--ink-3);font-size:13px;margin-top:28px;text-align:center}
+@media (hover:hover) and (pointer:fine){.card:not(.soon):hover{transform:translateY(-2px)}.link:hover{background:var(--bg-2)}}
+/* Transitions entre les pages (Safari 18.2+, Chrome 126+) */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:vt-out .2s ease both}
+::view-transition-new(root){animation:vt-in .32s var(--ease-out) both}
+@keyframes vt-out{to{opacity:0;transform:translateX(-24px)}}
+@keyframes vt-in{from{opacity:0;transform:translateX(32px)}}
+html.vt-back::view-transition-old(root){animation-name:vt-out-back}
+html.vt-back::view-transition-new(root){animation-name:vt-in-back}
+@keyframes vt-out-back{to{opacity:0;transform:translateX(32px)}}
+@keyframes vt-in-back{from{opacity:0;transform:translateX(-24px)}}
+@media (prefers-reduced-motion:reduce){.card,.link{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
 </style>
 </head>
 <body>
 <main>
   <p class="kicker">Philosophie et rationalité</p>
   <h1>Philo 101</h1>
-  <p class="lead">Mes cours de philo transformés en outils de révision : transcriptions, textes, synthèses, fiches et quiz. Tout fonctionne hors ligne sur iPhone.</p>
+  <p class="lead">Mes cours de philo transformés en outils de révision : transcriptions avec audio, textes, synthèses, fiches et quiz.</p>
 
   <div class="install" id="install">
     <img src="icons/apple-touch-icon.png" alt="">
     <div><b>Installer Philo 101</b><span id="installHow">Ajoutez l’app à l’écran d’accueil : elle fonctionne hors ligne.</span></div>
-    <button id="installBtn" hidden>Installer</button>
+    <button class="ok" id="installBtn" hidden>Installer</button>
     <button class="x" id="installClose" aria-label="Fermer">×</button>
   </div>
 
   <div class="h">Modules</div>
   <a class="card" href="socrate/">
-    <div class="top"><div class="mono">Σ</div><div><h2>Socrate</h2><div class="sub">2 séances · Apologie & Criton</div></div></div>
+    <div class="top"><div class="mono">Σ</div><div><h2>Socrate</h2><div class="sub">2 séances · Apologie & Criton</div></div>
+      <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></div>
     <p>La raison contre l’opinion : vie et procès de Socrate, l’enquête de l’Apologie, ironie et maïeutique, le Criton.</p>
-    <div class="tags"><span class="tag">Audio + paroles en direct</span><span class="tag">Transcription</span><span class="tag">Textes + corrigés</span><span class="tag">34 fiches</span><span class="tag">20 questions</span></div>
+    <div class="tags"><span class="tag">Audio + paroles en direct</span><span class="tag">Textes + corrigés</span><span class="tag">34 fiches</span><span class="tag">20 questions</span></div>
+    <div class="progress" id="socrateProgress" hidden></div>
   </a>
   <div class="card soon"><div class="top"><div class="mono" style="background:var(--ink-3)">+</div><div><h2>Prochain module</h2><div class="sub">À venir</div></div></div></div>
 
-  <div class="h" style="margin-top:28px">Documents · Socrate</div>
-  <div class="links">
-    <a class="link" href="socrate/transcription.html">Transcription intégrale <span>Texte</span></a>
-    <a class="link" href="socrate/audio/seance1.m4a">Enregistrement · Séance 1 <span>36 min</span></a>
-    <a class="link" href="socrate/audio/seance2.m4a">Enregistrement · Séance 2 <span>49 min</span></a>
-    <a class="link" href="socrate/sources/Socrate_PowerPoint.pdf">PowerPoint du cours <span>PDF</span></a>
-    <a class="link" href="socrate/sources/Fiche1_Apologie_enquete.pdf">Fiche 1 · L’enquête de Socrate <span>PDF</span></a>
-    <a class="link" href="socrate/sources/Fiche2_Criton_analyse.pdf">Fiche 2 · Analyser le Criton <span>PDF</span></a>
+  <div class="h">Documents · Socrate</div>
+  <div class="list">
+    <a class="link" href="socrate/transcription.html" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6h14M5 10h14M5 14h10M5 18h7"/></svg></span><span class="t">Transcription intégrale</span><span class="m">Texte</span></a>
+    <a class="link" href="socrate/audio/seance1.m4a" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg></span><span class="t">Enregistrement · Séance 1</span><span class="m">36 min</span></a>
+    <a class="link" href="socrate/audio/seance2.m4a" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg></span><span class="t">Enregistrement · Séance 2</span><span class="m">49 min</span></a>
+    <a class="link" href="socrate/sources/Socrate_PowerPoint.pdf" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><span class="t">PowerPoint du cours</span><span class="m">PDF</span></a>
+    <a class="link" href="socrate/sources/Fiche1_Apologie_enquete.pdf" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg></span><span class="t">Fiche 1 · L’enquête de Socrate</span><span class="m">PDF</span></a>
+    <a class="link" href="socrate/sources/Fiche2_Criton_analyse.pdf" target="_blank" rel="noopener"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg></span><span class="t">Fiche 2 · Analyser le Criton</span><span class="m">PDF</span></a>
   </div>
-  <footer>Installable sur iPhone et Android · fonctionne hors ligne</footer>
+
+  <div class="h">Réglages</div>
+  <div class="settings">
+    <div class="row"><label>Apparence</label>
+      <div class="seg" role="group" aria-label="Apparence"><div class="seg-thumb" id="themeThumb"></div>
+        <button data-theme="auto">Auto</button><button data-theme="light">Clair</button><button data-theme="dark">Sombre</button></div>
+    </div>
+  </div>
+
+  <footer>Fonctionne hors ligne · installable sur iPhone et Android</footer>
 </main>
 <script>
 (() => {
+  const $ = s => document.querySelector(s);
+  const get = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  /* Service worker (hors ligne) */
   const ok = 'serviceWorker' in navigator && /^https?:$/.test(location.protocol);
   if (ok) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
-  const box = document.getElementById('install'), btn = document.getElementById('installBtn');
+
+  /* Apparence, partagée avec les modules */
+  const C = { light: '#f6f1e9', dark: '#14110e' };
+  function applyTheme(t) {
+    const r = document.documentElement;
+    if (t === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', t);
+    r.style.colorScheme = t === 'auto' ? '' : t;
+    const cs = $('meta[name="color-scheme"]'); cs.setAttribute('content', t === 'auto' ? 'light dark' : t);
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+    let after = cs;
+    (t === 'auto' ? [['light', '(prefers-color-scheme: light)'], ['dark', '(prefers-color-scheme: dark)']] : [[t, null]]).forEach(([k, media]) => {
+      const m = document.createElement('meta'); m.name = 'theme-color'; m.content = C[k]; if (media) m.media = media;
+      after.insertAdjacentElement('afterend', m); after = m;
+    });
+    const btns = [...document.querySelectorAll('.seg [data-theme]')];
+    btns.forEach(b => b.setAttribute('aria-pressed', b.dataset.theme === t));
+    $('#themeThumb').style.transform = `translateX(${btns.findIndex(b => b.dataset.theme === t) * 100}%)`;
+    set('philo:theme', t);
+  }
+  document.querySelectorAll('.seg [data-theme]').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
+  const saved = get('philo:theme') || get('socrate:theme') || 'auto';
+  applyTheme(['auto', 'light', 'dark'].includes(saved) ? saved : 'auto');
+
+  /* Progression du module Socrate */
+  const deck = get('socrate:deck'), quiz = get('socrate:quiz'), pos = get('socrate:audioPos') || {};
+  const parts = [];
+  if (deck && deck.order && deck.known && deck.known.length) parts.push(`Fiches <b>${deck.known.length}/${deck.order.length}</b>`);
+  if (quiz && quiz.i) parts.push(`Quiz <b>${quiz.score}/${Math.max(quiz.i, 1)}</b>`);
+  const listened = Object.values(pos).reduce((a, b) => a + (b || 0), 0);
+  if (listened > 30) parts.push(`Écouté <b>${Math.round(listened / 60)} min</b>`);
+  if (parts.length) { const el = $('#socrateProgress'); el.innerHTML = parts.map(p => `<span>${p}</span>`).join(''); el.hidden = false; }
+
+  /* Bandeau d'installation (navigateur seulement) */
+  const box = $('#install'), btn = $('#installBtn');
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
-  let dismissed = false; try { dismissed = localStorage.getItem('philo:installDismissed') === '1'; } catch (e) {}
-  if (standalone || dismissed || !ok) return;
-  if (isIOS) { document.getElementById('installHow').textContent = 'Dans Safari : touchez Partager ⬆︎, puis « Sur l’écran d’accueil ».'; box.classList.add('show'); }
+  if (standalone || get('philo:installDismissed') || !ok) return;
+  if (isIOS) { $('#installHow').textContent = 'Dans Safari : touchez Partager ⬆︎, puis « Sur l’écran d’accueil ».'; box.classList.add('show'); }
   let evt = null;
   addEventListener('beforeinstallprompt', e => { e.preventDefault(); evt = e; btn.hidden = false; box.classList.add('show'); });
   btn.onclick = async () => { if (!evt) return; evt.prompt(); try { await evt.userChoice; } catch (e) {} evt = null; box.classList.remove('show'); };
-  document.getElementById('installClose').onclick = () => { box.classList.remove('show'); try { localStorage.setItem('philo:installDismissed', '1'); } catch (e) {} };
+  $('#installClose').onclick = () => { box.classList.remove('show'); set('philo:installDismissed', 1); };
 })();
 </script>
 </body>

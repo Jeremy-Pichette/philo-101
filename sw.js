@@ -3,7 +3,7 @@
    - Autres fichiers (icônes, PDF, manifestes) : cache d'abord, mise à jour en arrière-plan
    - Audios : servis depuis le cache « hors ligne » s'ils ont été téléchargés (avec gestion des requêtes Range,
      indispensable à Safari), sinon directement depuis le réseau. */
-const VERSION = '2026-11-12-3';
+const VERSION = '2026-11-12-4';
 const CORE = 'philo-core-' + VERSION;
 const RUNTIME = 'philo-runtime';
 const AUDIO = 'philo-audio';
@@ -18,11 +18,7 @@ const PRECACHE = [
   'icons/favicon-32.png',
   'socrate/',
   'socrate/index.html',
-  'socrate/manifest.webmanifest',
-  'socrate/icons/apple-touch-icon.png',
   'socrate/icons/icon-192.png',
-  'socrate/icons/icon-512.png',
-  'socrate/icons/favicon-32.png',
   'socrate/transcription.html'
 ];
 

@@ -6,7 +6,7 @@ Mes cours de philosophie (*Philosophie et rationalité*) transformés en outils 
 
 Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d’accueil et fonctionne **hors ligne**.
 
-- **iPhone / iPad** : ouvrir le site dans Safari → Partager ⬆︎ → « Sur l’écran d’accueil ». On peut installer le site entier (*Philo 101*) ou directement un module (*Socrate*).
+- **iPhone / iPad** : ouvrir l’accueil du site dans Safari → Partager ⬆︎ → « Sur l’écran d’accueil ». Une seule app, **Philo 101**, donne accès à tous les modules (bouton « ‹ Philo 101 » pour revenir à l’accueil).
 - **Android / ordinateur** : bouton « Installer » (page d’accueil ou Réglages de l’app).
 - **Hors ligne** : les pages sont enregistrées automatiquement après la première visite. Pour écouter les cours sans réseau : Réglages → *Audios hors ligne* → Télécharger (31 Mo).
 
@@ -30,13 +30,12 @@ Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d
 ```
 philo-101/
 ├── index.html                 # accueil du site (liste des modules)
-├── manifest.webmanifest       # manifeste PWA du site
+├── manifest.webmanifest       # manifeste PWA : l’app « Philo 101 »
 ├── sw.js                      # service worker (cache hors ligne, audios)
 ├── icons/                     # icônes de l’app Philo 101
 ├── socrate/
 │   ├── index.html             # l’app de révision (fichier unique)
-│   ├── manifest.webmanifest   # manifeste PWA du module (app « Socrate »)
-│   ├── icons/                 # icônes de l’app Socrate
+│   ├── icons/                 # icône du module (raccourci)
 │   ├── transcription.md       # transcription intégrale en texte
 │   ├── audio/                 # enregistrements des 2 séances (volume normalisé, AAC 48 kb/s)
 │   └── sources/               # PowerPoint et fiches du cours (PDF)

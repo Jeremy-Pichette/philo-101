@@ -98,7 +98,7 @@ html.vt-back::view-transition-old(root){animation-name:vt-out-back}
 html.vt-back::view-transition-new(root){animation-name:vt-in-back}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(32px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-24px)}}
-@media (prefers-reduced-motion:reduce){.card,.link{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
+@media (prefers-reduced-motion:reduce){.card,.link,.seg-thumb{transition:none}::view-transition-old(root),::view-transition-new(root){animation:none}}
 </style>
 </head>
 <body>

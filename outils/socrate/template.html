@@ -215,11 +215,12 @@ mark.cur{background:var(--mark-cur)}
 .thumb b{color:var(--accent);font-weight:700;margin-right:4px;font-variant-numeric:tabular-nums}
 .slides-actions{display:flex;gap:8px;margin:0 0 18px}
 .slides-actions .btn{height:42px;font-size:15px;padding:0 16px;text-decoration:none}
-.viewer{position:fixed;inset:0;z-index:70;background:#0d0b09;color:#f1ebe2;display:flex;flex-direction:column;opacity:0;transform:scale(.97);pointer-events:none;
+.viewer{position:fixed;inset:0;z-index:70;background:#0d0b09;color:#f1ebe2;display:flex;flex-direction:column;opacity:0;transform:scale(.94);pointer-events:none;touch-action:pan-x pinch-zoom;
   transition:opacity .2s var(--ease-out),transform .24s var(--ease-out)}
 .viewer.open{opacity:1;transform:none;pointer-events:auto}
 .viewer[hidden]{display:none}
-.v-bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;flex:none}
+.v-bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;flex:none;touch-action:none;transition:opacity .2s ease}
+.v-track{will-change:transform}
 .v-btn{height:36px;min-width:36px;padding:0 12px;border-radius:18px;background:rgba(255,255,255,.12);color:#f1ebe2;font-size:15px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:transform .12s var(--ease-out),background-color .15s}
 .v-btn:active{transform:scale(.94);background:rgba(255,255,255,.2)}
 .v-btn svg{width:18px;height:18px}
@@ -322,6 +323,8 @@ mark.cur{background:var(--mark-cur)}
 .ln{border-radius:5px;transition:color .35s ease,background-color .35s ease;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .ts{cursor:pointer;transition:transform .12s var(--ease-out),background-color .15s}
 .ts:active{transform:scale(.92)}
+.ts{position:relative}
+.ts::after,.has-audio .tp .n::after{content:"";position:absolute;inset:-12px -8px}
 .ts::before{content:"";display:inline-block;width:0;height:0;border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;margin-right:5px;vertical-align:0}
 body.audio-on .ln{cursor:pointer}
 body.audio-on .ln:active{background:var(--accent-soft)}
@@ -331,7 +334,7 @@ body.audio-on .ln:active{background:var(--accent-soft)}
 .lyrics-on .ln.past{color:var(--ink-2)}
 .lyrics-on .ts{opacity:.55}
 .lyrics-on .who{opacity:.7}
-.has-audio .tp .n{cursor:pointer;border-radius:6px;transition:background-color .15s ease,color .15s ease}
+.has-audio .tp .n{position:relative;cursor:pointer;border-radius:6px;transition:background-color .15s ease,color .15s ease}
 .has-audio .tp .n:active{background:var(--accent-soft)}
 body.has-player #view-textes{padding-bottom:96px}
 body.has-player #view-cours{padding-bottom:96px}
@@ -972,14 +975,19 @@ function vGo(i, smooth){
   vTrack.scrollTo({ left: vIndex * vTrack.clientWidth, behavior: smooth && !reduced.matches ? 'smooth' : 'auto' });
   vCount();
 }
-function openSlides(i){
+const behind = () => [$('main'), $('.topbar'), $('.tabbar'), player];
+function openSlides(i, from){
   buildViewer(); vReturnFocus = document.activeElement;
+  if (from){ const r = from.getBoundingClientRect(); viewer.style.transformOrigin = `${r.left + r.width/2}px ${r.top + r.height/2}px`; }
+  else viewer.style.transformOrigin = '';
   viewer.hidden = false; document.documentElement.style.overflow = 'hidden';
+  behind().forEach(e => e && (e.inert = true));   // Tab et lecteurs d'écran restent dans la visionneuse
   requestAnimationFrame(() => { vGo(i, false); viewer.classList.add('open'); $('#vClose').focus({ preventScroll: true }); });
   if (audioStarted && !audio.paused) $('#follow').classList.remove('show');
 }
 function closeSlides(){
   viewer.classList.remove('open'); document.documentElement.style.overflow = '';
+  behind().forEach(e => e && (e.inert = false));
   setTimeout(() => { if (!viewer.classList.contains('open')) viewer.hidden = true; }, 260);
   if (vReturnFocus) vReturnFocus.focus({ preventScroll: true });
 }
@@ -995,7 +1003,49 @@ addEventListener('keydown', e => {
   else if (e.key === 'ArrowRight') { e.preventDefault(); vGo(vIndex + 1, true); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); vGo(vIndex - 1, true); }
 });
-$('#essentiel').addEventListener('click', e => { const t = e.target.closest('[data-slide]'); if (t){ haptic(5); openSlides(+t.dataset.slide); } });
+$('#essentiel').addEventListener('click', e => { const t = e.target.closest('[data-slide]'); if (t){ haptic(5); openSlides(+t.dataset.slide, t.classList.contains('thumb') ? t.querySelector('img') : null); } });
+
+// 2. Glisser vers le bas pour fermer (comme Photos) : suivi 1:1, élan projeté, ressort si on relâche trop tôt
+(() => {
+  let id = null, y0 = 0, x0 = 0, decided = false, y = 0, hist = [], anim = null;
+  const bar = $('.v-bar');
+  const set = v => {
+    y = v; const p = Math.min(1, Math.max(0, v) / (innerHeight * 0.6));
+    vTrack.style.transform = v ? `translateY(${v}px) scale(${1 - p * 0.12})` : '';
+    viewer.style.backgroundColor = v ? `rgba(13,11,9,${1 - p * 0.85})` : '';
+    bar.style.opacity = v ? String(1 - p * 1.5) : '';
+  };
+  const reset = () => { anim && anim.stop(); anim = null; set(0); };
+  viewer.addEventListener('pointerdown', e => {
+    if (id !== null || e.target.closest('button, a') || e.pointerType === 'mouse') return;
+    anim && anim.stop(); anim = null;
+    id = e.pointerId; x0 = e.clientX; y0 = e.clientY - y; decided = false; hist = [{ y: e.clientY, t: e.timeStamp }];
+  });
+  viewer.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    const dx = e.clientX - x0, dy = e.clientY - y0 - y;
+    if (!decided){
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      decided = true;
+      if (Math.abs(dy) <= Math.abs(dx)) { id = null; return; }   // horizontal : défilement natif des diapositives
+      viewer.setPointerCapture(id);
+    }
+    let v = e.clientY - y0; if (v < 0) v = -rubber(-v, innerHeight);
+    set(v); hist.push({ y: e.clientY, t: e.timeStamp }); if (hist.length > 6) hist.shift();
+  });
+  const up = e => {
+    if (e.pointerId !== id) return; id = null;
+    if (!decided) return;
+    const a = hist[0], b = hist[hist.length - 1];
+    const vel = (b.t - a.t) > 0 ? (b.y - a.y) / (b.t - a.t) * 1000 : 0;
+    if (y + project(vel, .99) > 160){
+      haptic(6);
+      anim = spring({ from: y, to: innerHeight, velocity: vel, response: .3, damping: 1, onUpdate: set, onDone: () => { anim = null; } });
+      closeSlides(); setTimeout(reset, 300);
+    } else anim = spring({ from: y, to: 0, velocity: vel, response: .35, damping: .9, onUpdate: set, onDone: () => { anim = null; } });
+  };
+  viewer.addEventListener('pointerup', up); viewer.addEventListener('pointercancel', up);
+})();
 
 /* ---------- TEXTES ---------- */
 let textIdx = store.get('text', 0);

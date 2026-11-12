@@ -20,7 +20,7 @@
   --line:rgba(60,45,25,.12); --accent:#b4532a; --accent-ink:#fff; --accent-soft:rgba(180,83,42,.12);
   --good:#2f7d4f; --good-soft:rgba(47,125,79,.13); --bad:#b23a3a; --bad-soft:rgba(178,58,58,.12);
   --mark:rgba(232,170,60,.42); --mark-cur:rgba(232,140,30,.85);
-  --glass:rgba(246,241,233,.72); --glass-line:rgba(255,255,255,.55);
+  --glass:rgba(246,241,233,.9); --glass-line:rgba(255,255,255,.55);
   --shadow:0 1px 2px rgba(40,30,15,.06),0 8px 24px rgba(40,30,15,.08);
   --shadow-lg:0 2px 6px rgba(40,30,15,.08),0 24px 60px rgba(40,30,15,.16);
   --ease-out:cubic-bezier(.23,1,.32,1); --ease-io:cubic-bezier(.77,0,.175,1); --ease-drawer:cubic-bezier(.32,.72,0,1);
@@ -35,7 +35,7 @@
     --line:rgba(255,240,220,.1); --accent:#e0794a; --accent-ink:#1a0f08; --accent-soft:rgba(224,121,74,.16);
     --good:#5fbf86; --good-soft:rgba(95,191,134,.15); --bad:#e46b6b; --bad-soft:rgba(228,107,107,.15);
     --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8);
-    --glass:rgba(20,17,14,.7); --glass-line:rgba(255,255,255,.07);
+    --glass:rgba(20,17,14,.9); --glass-line:rgba(255,255,255,.07);
     --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
     --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 24px 60px rgba(0,0,0,.5);
   }
@@ -45,7 +45,7 @@
   --line:rgba(255,240,220,.1); --accent:#e0794a; --accent-ink:#1a0f08; --accent-soft:rgba(224,121,74,.16);
   --good:#5fbf86; --good-soft:rgba(95,191,134,.15); --bad:#e46b6b; --bad-soft:rgba(228,107,107,.15);
   --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8);
-  --glass:rgba(20,17,14,.7); --glass-line:rgba(255,255,255,.07);
+  --glass:rgba(20,17,14,.9); --glass-line:rgba(255,255,255,.07);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
   --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 24px 60px rgba(0,0,0,.5);
 }
@@ -96,6 +96,7 @@ input{font:inherit;font-size:16px;color:inherit}
 
 /* ---------- Search ---------- */
 .search{position:sticky;top:calc(env(safe-area-inset-top,0px) + 51px);z-index:15;box-shadow:0 0 0 6px var(--bg);display:flex;align-items:center;gap:8px;background:var(--bg-2);border-radius:12px;padding:0 10px;height:40px;margin-bottom:10px}
+.search::after{content:"";position:absolute;left:-16px;right:-16px;top:calc(100% + 6px);height:16px;background:linear-gradient(var(--bg),transparent);pointer-events:none}
 .search svg{width:18px;height:18px;color:var(--ink-3);flex:none}
 .search input{flex:1;min-width:0;border:0;background:none;outline:none;height:100%}
 .search input::placeholder{color:var(--ink-3)}
@@ -493,10 +494,19 @@ const project = (v, d=.998) => (v/1000)*d/(1-d);
 const rubber = (o, dim, c=.55) => (o*dim*c)/(dim + c*Math.abs(o));
 
 /* ---------- theme / settings ---------- */
-function applyTheme(t){ if (t==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+const THEME_BG = { light: '#f6f1e9', dark: '#14110e' };
+function applyTheme(t){
+  const root = document.documentElement;
+  if (t==='auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
   $$('#themeChips .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.theme===t)); store.set('theme', t);
-  const bg = getComputedStyle(document.body).backgroundColor;
-  $$('meta[name="theme-color"]').forEach(m => { if (t!=='auto') m.setAttribute('content', bg); });
+  // Safari (barre d'état, zones de rebond, contrôles natifs) suit le choix de l'app, pas seulement celui de l'iPhone
+  const cs = $('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t==='auto' ? 'light dark' : t);
+  root.style.colorScheme = t==='auto' ? '' : t;
+  // Couleur de la barre système : forcée si Clair/Sombre, sinon une par apparence de l'iPhone
+  $$('meta[name="theme-color"]').forEach(m => {
+    const media = (m.getAttribute('media') || '').includes('dark') ? 'dark' : 'light';
+    m.setAttribute('content', t==='auto' ? THEME_BG[media] : THEME_BG[t]);
+  });
 }
 function applyTs(on){ document.documentElement.style.setProperty('--ts-display', on?'inline-block':'none');
   $$('#tsChips .chip').forEach(b => b.setAttribute('aria-pressed', (b.dataset.ts==='on')===on)); store.set('ts', on);

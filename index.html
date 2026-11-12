@@ -8,7 +8,11 @@
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14110e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Philo 101">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4532a'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='42' text-anchor='middle' fill='%23f6f1e9'%3E%CF%86%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <title>Philo 101</title>
 <style>
 :root{--bg:#f6f1e9;--card:#fffdf9;--ink:#1d1a16;--ink-2:#5d564c;--ink-3:#8c8478;--line:rgba(60,45,25,.12);--accent:#b4532a;--accent-soft:rgba(180,83,42,.12);
@@ -36,6 +40,13 @@ a{color:inherit;text-decoration:none}
 .link{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;font-size:15.5px;font-weight:550}
 .link span{color:var(--ink-3);font-weight:400;font-size:13.5px}
 .soon{opacity:.55;box-shadow:none;border:1.5px dashed var(--line);background:none}
+.install{display:none;align-items:center;gap:12px;background:var(--card);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;margin:0 0 24px}
+.install.show{display:flex}
+.install img{width:44px;height:44px;border-radius:10px;flex:none}
+.install div{flex:1;font-size:14px;color:var(--ink-2);line-height:1.4}
+.install b{display:block;color:var(--ink);font-size:15px}
+.install button{flex:none;border:0;background:var(--accent);color:#fff;font:inherit;font-weight:650;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer}
+.install .x{background:none;color:var(--ink-3);padding:6px;font-size:20px;line-height:1}
 footer{color:var(--ink-3);font-size:13px;margin-top:36px;text-align:center}
 @media (hover:hover) and (pointer:fine){.card:hover,.link:hover{transform:translateY(-2px)}}
 @media (prefers-reduced-motion:reduce){.card,.link{transition:none}}
@@ -46,6 +57,13 @@ footer{color:var(--ink-3);font-size:13px;margin-top:36px;text-align:center}
   <p class="kicker">Philosophie et rationalité</p>
   <h1>Philo 101</h1>
   <p class="lead">Mes cours de philo transformés en outils de révision : transcriptions, textes, synthèses, fiches et quiz. Tout fonctionne hors ligne sur iPhone.</p>
+
+  <div class="install" id="install">
+    <img src="icons/apple-touch-icon.png" alt="">
+    <div><b>Installer Philo 101</b><span id="installHow">Ajoutez l’app à l’écran d’accueil : elle fonctionne hors ligne.</span></div>
+    <button id="installBtn" hidden>Installer</button>
+    <button class="x" id="installClose" aria-label="Fermer">×</button>
+  </div>
 
   <div class="h">Modules</div>
   <a class="card" href="socrate/">
@@ -64,7 +82,23 @@ footer{color:var(--ink-3);font-size:13px;margin-top:36px;text-align:center}
     <a class="link" href="socrate/sources/Fiche1_Apologie_enquete.pdf">Fiche 1 · L’enquête de Socrate <span>PDF</span></a>
     <a class="link" href="socrate/sources/Fiche2_Criton_analyse.pdf">Fiche 2 · Analyser le Criton <span>PDF</span></a>
   </div>
-  <footer>Astuce : dans Safari, Partager → « Sur l’écran d’accueil » pour l’installer comme une app.</footer>
+  <footer>Installable sur iPhone et Android · fonctionne hors ligne</footer>
 </main>
+<script>
+(() => {
+  const ok = 'serviceWorker' in navigator && /^https?:$/.test(location.protocol);
+  if (ok) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const box = document.getElementById('install'), btn = document.getElementById('installBtn');
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  let dismissed = false; try { dismissed = localStorage.getItem('philo:installDismissed') === '1'; } catch (e) {}
+  if (standalone || dismissed || !ok) return;
+  if (isIOS) { document.getElementById('installHow').textContent = 'Dans Safari : touchez Partager ⬆︎, puis « Sur l’écran d’accueil ».'; box.classList.add('show'); }
+  let evt = null;
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); evt = e; btn.hidden = false; box.classList.add('show'); });
+  btn.onclick = async () => { if (!evt) return; evt.prompt(); try { await evt.userChoice; } catch (e) {} evt = null; box.classList.remove('show'); };
+  document.getElementById('installClose').onclick = () => { box.classList.remove('show'); try { localStorage.setItem('philo:installDismissed', '1'); } catch (e) {} };
+})();
+</script>
 </body>
 </html>

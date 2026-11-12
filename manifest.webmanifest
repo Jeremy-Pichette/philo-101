@@ -1,0 +1,23 @@
+{
+  "name": "Philo 101",
+  "short_name": "Philo 101",
+  "description": "Mes cours de philosophie : transcriptions, textes, synthèses, fiches et quiz.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "fr",
+  "dir": "ltr",
+  "background_color": "#f6f1e9",
+  "theme_color": "#f6f1e9",
+  "categories": ["education", "books"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Socrate", "short_name": "Socrate", "url": "socrate/", "icons": [{ "src": "socrate/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

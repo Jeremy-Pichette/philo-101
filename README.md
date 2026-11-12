@@ -4,7 +4,11 @@ Mes cours de philosophie (*Philosophie et rationalité*) transformés en outils 
 
 **Site :** https://jeremy-pichette.github.io/philo-101/
 
-Chaque module est une page HTML autonome : aucun serveur, aucune dépendance, fonctionne hors ligne. Sur iPhone : Safari → Partager → « Sur l’écran d’accueil ».
+Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d’accueil et fonctionne **hors ligne**.
+
+- **iPhone / iPad** : ouvrir le site dans Safari → Partager ⬆︎ → « Sur l’écran d’accueil ». On peut installer le site entier (*Philo 101*) ou directement un module (*Socrate*).
+- **Android / ordinateur** : bouton « Installer » (page d’accueil ou Réglages de l’app).
+- **Hors ligne** : les pages sont enregistrées automatiquement après la première visite. Pour écouter les cours sans réseau : Réglages → *Audios hors ligne* → Télécharger (31 Mo).
 
 ## Modules
 
@@ -26,8 +30,13 @@ Chaque module est une page HTML autonome : aucun serveur, aucune dépendance, fo
 ```
 philo-101/
 ├── index.html                 # accueil du site (liste des modules)
+├── manifest.webmanifest       # manifeste PWA du site
+├── sw.js                      # service worker (cache hors ligne, audios)
+├── icons/                     # icônes de l’app Philo 101
 ├── socrate/
 │   ├── index.html             # l’app de révision (fichier unique)
+│   ├── manifest.webmanifest   # manifeste PWA du module (app « Socrate »)
+│   ├── icons/                 # icônes de l’app Socrate
 │   ├── transcription.md       # transcription intégrale en texte
 │   ├── audio/                 # enregistrements des 2 séances (volume normalisé, AAC 48 kb/s)
 │   └── sources/               # PowerPoint et fiches du cours (PDF)
@@ -41,6 +50,8 @@ philo-101/
 ```
 
 ## Notes
+
+Après une modification du site, incrémenter `VERSION` dans `sw.js` pour forcer la mise à jour du cache chez les appareils déjà installés.
 
 Les audios ont été normalisés (la voix de la prof était lointaine) et ré-encodés pour la lecture en streaming. Le lecteur ne fonctionne que si l’app est ouverte depuis le site (ou à côté du dossier `audio/`).
 

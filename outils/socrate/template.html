@@ -10,8 +10,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Socrate">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23b4532a'/%3E%3Ctext x='90' y='128' font-family='Georgia,serif' font-size='120' text-anchor='middle' fill='%23f6f1e9'%3E%CE%A3%3C/text%3E%3C/svg%3E">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4532a'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='42' text-anchor='middle' fill='%23f6f1e9'%3E%CE%A3%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <title>Socrate — Cours de philo</title>
 <style>
 :root{
@@ -251,6 +252,10 @@ mark.cur{background:var(--mark-cur)}
 .chips{display:flex;gap:6px}
 .chip{padding:7px 12px;border-radius:10px;background:var(--bg-2);font-size:14px;font-weight:600;color:var(--ink-2);transition:background-color .15s,color .15s}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.row label small{display:block;font-size:12.5px;font-weight:400;color:var(--ink-3);margin-top:1px}
+.row[hidden]{display:none}
+.chip:disabled{opacity:.8}
+.chip.progress{min-width:64px;font-variant-numeric:tabular-nums;background:linear-gradient(90deg,var(--accent-soft) var(--p,0%),var(--bg-2) var(--p,0%))}
 .about{color:var(--ink-3);font-size:13px;line-height:1.45;margin-top:12px}
 
 /* ---------- Lecteur audio + live lyrics ---------- */
@@ -442,8 +447,10 @@ body.has-player #view-cours{padding-bottom:96px}
     </div></div>
   <div class="row"><label>Horodatages</label>
     <div class="chips" id="tsChips"><button class="chip" data-ts="on">Afficher</button><button class="chip" data-ts="off">Masquer</button></div></div>
+  <div class="row" id="offlineRow" hidden><label>Audios hors ligne<small id="offlineInfo">31 Mo · pour écouter sans réseau</small></label><button class="chip" id="offlineBtn">Télécharger</button></div>
+  <div class="row" id="installRow" hidden><label>Installer l’app<small id="installInfo">Accès direct depuis l’écran d’accueil</small></label><button class="chip" id="installBtn">Installer</button></div>
   <div class="row"><label>Progression</label><button class="chip" id="resetAll">Réinitialiser</button></div>
-  <p class="about">Transcription automatique intégrale des deux enregistrements (noms propres corrigés ; quelques passages peu audibles, notamment les échanges avec la classe, peuvent rester approximatifs). Les horodatages renvoient à la position dans l’audio d’origine. Tout fonctionne hors ligne, sans serveur. Pour l’installer : dans Safari, touchez Partager → « Sur l’écran d’accueil ».</p>
+  <p class="about">Transcription automatique intégrale des deux enregistrements (noms propres corrigés ; quelques passages peu audibles, notamment les échanges avec la classe, peuvent rester approximatifs). Les horodatages renvoient à la position dans l’audio d’origine. Une fois ouverte, l’app fonctionne hors ligne ; téléchargez les audios ci-dessus pour les écouter sans réseau. Pour l’installer : dans Safari, touchez Partager → « Sur l’écran d’accueil ».</p>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -646,7 +653,7 @@ function onAudioError(){
   audioFailed = true; audioStarted = false;
   document.body.classList.remove('audio-on','lyrics');
   updatePlayerVisibility();
-  toast('Audio indisponible : ouvrez l’app depuis le site');
+  toast(navigator.onLine === false ? 'Hors ligne : téléchargez les audios dans Réglages' : 'Audio indisponible : ouvrez l’app depuis le site');
 }
 audio.addEventListener('error', () => { if (audioStarted) onAudioError(); });
 function setIcon(){ $('#pIcon').innerHTML = audio.paused ? PLAY : PAUSE; $('#pPlay').setAttribute('aria-label', audio.paused ? 'Lecture' : 'Pause'); }
@@ -747,6 +754,78 @@ function setMediaSession(){
 }
 addEventListener('pagehide', () => { if (loadedPart >= 0) savePos(); });
 addEventListener('keydown', e => { if (e.code === 'Space' && current === 'cours' && audioStarted && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#pPlay').click(); } });
+
+/* ---------- PWA : service worker, hors ligne, installation ---------- */
+const canSW = 'serviceWorker' in navigator && /^https?:$/.test(location.protocol);
+if (canSW) addEventListener('load', () => { navigator.serviceWorker.register('../sw.js', { scope: '../' }).then(() => offlineStatus()).catch(() => {}); });
+addEventListener('offline', () => toast('Hors ligne · le contenu reste disponible'));
+addEventListener('online', () => toast('De retour en ligne'));
+
+const AUDIO_CACHE = 'philo-audio';
+const audioUrls = () => DATA.parts.map(p => new URL(p.audio, location.href).href);
+let downloading = false;
+async function offlineStatus(){
+  const row = $('#offlineRow'), btn = $('#offlineBtn'), info = $('#offlineInfo');
+  if (!canSW || !('caches' in window)) { row.hidden = true; return; }
+  row.hidden = false;
+  if (downloading) return;
+  try{
+    const c = await caches.open(AUDIO_CACHE);
+    const hits = (await Promise.all(audioUrls().map(u => c.match(u)))).filter(Boolean).length;
+    btn.classList.remove('progress'); btn.disabled = false; btn.style.removeProperty('--p');
+    if (hits === DATA.parts.length){ info.textContent = 'Disponibles hors ligne ✓'; btn.textContent = 'Supprimer'; btn.dataset.state = 'done'; }
+    else { info.textContent = (hits ? `${hits}/${DATA.parts.length} séance · ` : '') + '31 Mo · pour écouter sans réseau'; btn.textContent = 'Télécharger'; btn.dataset.state = 'none'; }
+  }catch(e){ row.hidden = true; }
+}
+async function downloadAudios(){
+  const btn = $('#offlineBtn'), info = $('#offlineInfo');
+  downloading = true; btn.disabled = true; btn.classList.add('progress'); btn.textContent = '0 %';
+  info.textContent = 'Téléchargement… gardez l’app ouverte';
+  try{ if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); }catch(e){}
+  try{
+    const c = await caches.open(AUDIO_CACHE);
+    const urls = audioUrls();
+    const sizes = []; let total = 0, done = 0;
+    for (const u of urls){ try{ const h = await fetch(u, { method: 'HEAD', cache: 'no-store' }); const n = +h.headers.get('content-length') || 0; sizes.push(n); total += n; }catch(e){ sizes.push(0); } }
+    if (!total) total = 31.6e6;
+    for (const u of urls){
+      if (await c.match(u)) { done += sizes[urls.indexOf(u)]; continue; }
+      const res = await fetch(u, { cache: 'no-store' });
+      if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
+      const reader = res.body.getReader(); const chunks = [];
+      for (;;){
+        const { done: end, value } = await reader.read(); if (end) break;
+        chunks.push(value); done += value.length;
+        const pct = Math.min(99, Math.round(done / total * 100));
+        btn.textContent = pct + ' %'; btn.style.setProperty('--p', pct + '%');
+      }
+      const blob = new Blob(chunks, { type: 'audio/mp4' });
+      await c.put(u, new Response(blob, { headers: { 'Content-Type': 'audio/mp4', 'Content-Length': String(blob.size) } }));
+    }
+    haptic(12); toast('Audios disponibles hors ligne');
+  }catch(e){
+    toast(/quota/i.test(e && e.name || '') ? 'Pas assez d’espace sur l’appareil' : 'Échec du téléchargement, réessayez');
+  }
+  downloading = false; offlineStatus();
+}
+$('#offlineBtn').onclick = async () => {
+  haptic(5);
+  if ($('#offlineBtn').dataset.state === 'done'){ try{ await caches.delete(AUDIO_CACHE); }catch(e){} toast('Audios hors ligne supprimés'); offlineStatus(); }
+  else if (!downloading) downloadAudios();
+};
+
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+let installEvt = null;
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; $('#installRow').hidden = false; $('#installBtn').textContent = 'Installer'; });
+addEventListener('appinstalled', () => { $('#installRow').hidden = true; toast('App installée'); });
+if (!standalone && isIOS && canSW){ $('#installRow').hidden = false; $('#installInfo').textContent = 'Safari : Partager, puis « Sur l’écran d’accueil »'; $('#installBtn').textContent = 'Comment ?'; }
+$('#installBtn').onclick = async () => {
+  haptic(5);
+  if (installEvt){ installEvt.prompt(); try{ await installEvt.userChoice; }catch(e){} installEvt = null; $('#installRow').hidden = true; }
+  else toast('Touchez Partager ⬆︎ puis « Sur l’écran d’accueil »');
+};
+if (standalone) document.documentElement.classList.add('standalone');
 
 /* ---------- TEXTES ---------- */
 let textIdx = store.get('text', 0);
@@ -947,7 +1026,7 @@ function openSheet(){ sheetOpen = true; scrim.classList.add('show'); scrim.style
   sheetAnim = spring({from, to:0, response:.35, damping:1, onUpdate:setSheet, onDone:()=>sheetAnim=null}); }
 function closeSheet(v=0){ sheetOpen = false; sheetAnim && sheetAnim.stop();
   sheetAnim = spring({from:sheetY, to:sheetH()+20, velocity:v, response:.3, damping:1, onUpdate:setSheet, onDone:()=>{ sheetAnim=null; scrim.classList.remove('show'); scrim.style.opacity=''; }}); }
-$('#settingsBtn').onclick = () => { haptic(5); openSheet(); };
+$('#settingsBtn').onclick = () => { haptic(5); offlineStatus(); openSheet(); };
 scrim.onclick = () => closeSheet();
 addEventListener('keydown', e => { if (e.key==='Escape' && sheetOpen) closeSheet(); });
 (() => {

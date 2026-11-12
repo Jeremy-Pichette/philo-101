@@ -1,0 +1,5 @@
+title: Philo 101
+lang: fr
+exclude:
+  - outils/
+  - README.md

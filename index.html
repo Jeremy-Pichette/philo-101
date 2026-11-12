@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f1e9">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14110e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Philo 101">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b4532a'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='42' text-anchor='middle' fill='%23f6f1e9'%3E%CF%86%3C/text%3E%3C/svg%3E">
+<title>Philo 101</title>
+<style>
+:root{--bg:#f6f1e9;--card:#fffdf9;--ink:#1d1a16;--ink-2:#5d564c;--ink-3:#8c8478;--line:rgba(60,45,25,.12);--accent:#b4532a;--accent-soft:rgba(180,83,42,.12);
+  --shadow:0 1px 2px rgba(40,30,15,.06),0 8px 24px rgba(40,30,15,.08);--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,system-ui,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#14110e;--card:#211d18;--ink:#f1ebe2;--ink-2:#b9b0a3;--ink-3:#857c70;--line:rgba(255,240,220,.1);--accent:#e0794a;--accent-soft:rgba(224,121,74,.16);--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 48px) 16px calc(env(safe-area-inset-bottom,0px) + 40px)}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
+.lead{color:var(--ink-2);font-size:17px;margin:0 0 32px}
+.h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 4px 10px}
+a{color:inherit;text-decoration:none}
+.card{display:block;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:20px;margin-bottom:12px;transition:transform .14s cubic-bezier(.23,1,.32,1)}
+.card:active{transform:scale(.98)}
+.card .top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.mono{flex:none;width:52px;height:52px;border-radius:14px;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:30px}
+.card h2{font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.01em;margin:0}
+.card .sub{color:var(--ink-3);font-size:14px}
+.card p{margin:0 0 14px;color:var(--ink-2);font-size:15.5px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12.5px;font-weight:650;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.links{display:grid;gap:8px;margin-top:4px}
+.link{display:flex;justify-content:space-between;align-items:center;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;font-size:15.5px;font-weight:550}
+.link span{color:var(--ink-3);font-weight:400;font-size:13.5px}
+.soon{opacity:.55;box-shadow:none;border:1.5px dashed var(--line);background:none}
+footer{color:var(--ink-3);font-size:13px;margin-top:36px;text-align:center}
+@media (hover:hover) and (pointer:fine){.card:hover,.link:hover{transform:translateY(-2px)}}
+@media (prefers-reduced-motion:reduce){.card,.link{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Philosophie et rationalité</p>
+  <h1>Philo 101</h1>
+  <p class="lead">Mes cours de philo transformés en outils de révision : transcriptions, textes, synthèses, fiches et quiz. Tout fonctionne hors ligne sur iPhone.</p>
+
+  <div class="h">Modules</div>
+  <a class="card" href="socrate/">
+    <div class="top"><div class="mono">Σ</div><div><h2>Socrate</h2><div class="sub">2 séances · Apologie & Criton</div></div></div>
+    <p>La raison contre l’opinion : vie et procès de Socrate, l’enquête de l’Apologie, ironie et maïeutique, le Criton.</p>
+    <div class="tags"><span class="tag">Transcription</span><span class="tag">Textes + corrigés</span><span class="tag">34 fiches</span><span class="tag">20 questions</span></div>
+  </a>
+  <div class="card soon"><div class="top"><div class="mono" style="background:var(--ink-3)">+</div><div><h2>Prochain module</h2><div class="sub">À venir</div></div></div></div>
+
+  <div class="h" style="margin-top:28px">Documents · Socrate</div>
+  <div class="links">
+    <a class="link" href="socrate/transcription.html">Transcription intégrale <span>Texte</span></a>
+    <a class="link" href="socrate/sources/Socrate_PowerPoint.pdf">PowerPoint du cours <span>PDF</span></a>
+    <a class="link" href="socrate/sources/Fiche1_Apologie_enquete.pdf">Fiche 1 · L’enquête de Socrate <span>PDF</span></a>
+    <a class="link" href="socrate/sources/Fiche2_Criton_analyse.pdf">Fiche 2 · Analyser le Criton <span>PDF</span></a>
+  </div>
+  <footer>Astuce : dans Safari, Partager → « Sur l’écran d’accueil » pour l’installer comme une app.</footer>
+</main>
+</body>
+</html>

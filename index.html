@@ -50,6 +50,7 @@ h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02e
 .h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:28px 4px 10px}
 .card{display:block;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:18px;margin-bottom:12px;transition:transform .14s var(--ease-out)}
 .card:active{transform:scale(.98)}
+.card,.link,.seg button,.install button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .card .top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
 .mono{flex:none;width:52px;height:52px;border-radius:14px;background:linear-gradient(#c25f33,#a24a24);color:#f6f1e9;display:grid;place-items:center;font-family:var(--serif);font-size:30px}
 .card h2{font-family:var(--serif);font-size:24px;line-height:1.15;letter-spacing:-.01em;margin:0}
@@ -58,7 +59,7 @@ h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02e
 .card p{margin:0 0 12px;color:var(--ink-2);font-size:15.5px}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{font-size:12.5px;font-weight:650;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
-.progress{display:flex;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}
+.progress{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3)}
 .progress[hidden]{display:none}
 .progress b{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}
 .soon{opacity:.55;box-shadow:none;border:1.5px dashed var(--line);background:none}
@@ -79,11 +80,11 @@ h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02e
 .install .ok{flex:none;background:var(--accent);color:var(--accent-ink);font-weight:650;font-size:14px;padding:8px 14px;border-radius:999px}
 .install .x{color:var(--ink-3);padding:6px;font-size:22px;line-height:1}
 .settings{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:6px 16px}
-.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 0}
 .row label{font-weight:550}
-.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg-2);border-radius:10px;padding:2px;min-width:210px}
+.seg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:var(--bg-2);border-radius:10px;padding:2px;flex:1 1 200px;max-width:260px}
 .seg-thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px)/3);border-radius:8px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.05);transition:transform .32s var(--ease-drawer)}
-.seg button{position:relative;z-index:1;padding:6px 0;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:color .2s ease}
+.seg button{position:relative;z-index:1;min-height:36px;padding:6px 0;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:color .2s ease}
 .seg button[aria-pressed="true"]{color:var(--ink)}
 footer{color:var(--ink-3);font-size:13px;margin-top:28px;text-align:center}
 @media (hover:hover) and (pointer:fine){.card:not(.soon):hover{transform:translateY(-2px)}.link:hover{background:var(--bg-2)}}

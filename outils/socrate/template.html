@@ -253,8 +253,56 @@ mark.cur{background:var(--mark-cur)}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .about{color:var(--ink-3);font-size:13px;line-height:1.45;margin-top:12px}
 
+/* ---------- Lecteur audio + live lyrics ---------- */
+.ln{border-radius:5px;transition:color .35s ease,background-color .35s ease;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.ts{cursor:pointer;transition:transform .12s var(--ease-out),background-color .15s}
+.ts:active{transform:scale(.92)}
+.ts::before{content:"";display:inline-block;width:0;height:0;border-left:6px solid currentColor;border-top:4px solid transparent;border-bottom:4px solid transparent;margin-right:5px;vertical-align:0}
+body.audio-on .ln{cursor:pointer}
+.ln.now{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+body.lyrics .transcript .ln{color:var(--ink-3)}
+body.lyrics .transcript .ln.now{color:var(--ink)}
+body.lyrics .transcript .ln.past{color:var(--ink-2)}
+body.lyrics .transcript .ts{opacity:.55}
+body.has-player #view-cours{padding-bottom:96px}
+.player{position:fixed;z-index:35;left:50%;width:min(560px,calc(100% - 20px));bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 10px);
+  transform:translate(-50%,0);background:var(--glass);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-lg);padding:10px 12px 8px;
+  transition:transform .4s var(--ease-drawer),opacity .25s ease}
+.player[hidden]{display:block;transform:translate(-50%,calc(100% + 40px));opacity:0;pointer-events:none}
+.p-row{display:flex;align-items:center;gap:6px}
+.p-play{flex:none;width:44px;height:44px;border-radius:22px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;transition:transform .12s var(--ease-out)}
+.p-play:active{transform:scale(.92)}
+.p-play svg{width:20px;height:20px}
+.p-mid{flex:1;min-width:0;padding:0 4px}
+.p-title{font-size:13.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.005em}
+.p-time{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.p-btn{flex:none;width:36px;height:36px;border-radius:18px;display:grid;place-items:center;color:var(--ink);transition:transform .12s var(--ease-out),background-color .15s}
+.p-btn:active{transform:scale(.9);background:var(--line)}
+.p-btn svg{width:22px;height:22px}
+.p-speed{flex:none;min-width:40px;height:28px;border-radius:8px;background:var(--bg-2);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.p-lyrics[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+.p-bar{position:relative;height:22px;margin:2px 2px 0;touch-action:none;cursor:pointer}
+.p-bar::before{content:"";position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:var(--line)}
+.p-fill{position:absolute;left:0;top:9px;height:4px;border-radius:2px;background:var(--accent);width:100%;transform-origin:0 0;transform:scaleX(0)}
+.p-knob{position:absolute;top:4px;left:0;width:14px;height:14px;margin-left:-7px;border-radius:7px;background:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .15s var(--ease-out)}
+.p-bar.drag .p-knob{transform:scale(1.35)}
+.p-buffer{position:absolute;left:0;top:9px;height:4px;border-radius:2px;background:var(--line);width:100%;transform-origin:0 0;transform:scaleX(0)}
+.follow{position:fixed;z-index:36;left:50%;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 106px);transform:translate(-50%,10px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:650;padding:9px 14px;border-radius:999px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:6px;
+  transition:opacity .2s ease,transform .3s var(--ease-out)}
+.follow.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.follow svg{width:14px;height:14px}
+.listen-cta{display:flex;align-items:center;gap:10px;width:100%;background:var(--card);box-shadow:var(--shadow);border-radius:14px;padding:10px 12px;margin:0 0 14px;text-align:left;transition:transform .12s var(--ease-out)}
+.listen-cta:active{transform:scale(.98)}
+.listen-cta .ic{flex:none;width:34px;height:34px;border-radius:17px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.listen-cta .ic svg{width:16px;height:16px}
+.listen-cta b{display:block;font-size:15px;color:var(--ink)}
+.listen-cta span{font-size:13px;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){.ln{transition:none}.player{transition:opacity .2s ease}}
+
 /* ---------- Toast ---------- */
-.toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 20px);z-index:60;transform:translate(-50%,16px);opacity:0;
+.toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 110px);z-index:60;transform:translate(-50%,16px);opacity:0;
   background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);transition:opacity .2s ease,transform .3s var(--ease-out);pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
@@ -314,6 +362,10 @@ mark.cur{background:var(--mark-cur)}
         <button id="fontUp" aria-label="Agrandir le texte" style="font-size:19px">A</button>
       </div>
     </div>
+    <button class="listen-cta" id="listenCta">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></span>
+      <span><b>Écouter le cours</b><span>Le texte suit la voix, comme des paroles en direct</span></span>
+    </button>
     <article class="transcript" id="transcript"></article>
   </section>
 
@@ -365,6 +417,20 @@ mark.cur{background:var(--mark-cur)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 .9c0 1.7-2.5 2.3-2.5 3.8"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg>Quiz</button>
   </div>
 </nav>
+
+<div class="player" id="player" hidden role="region" aria-label="Lecteur audio">
+  <div class="p-row">
+    <button class="p-play" id="pPlay" aria-label="Lecture"><svg id="pIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></button>
+    <div class="p-mid"><div class="p-title" id="pTitle">Séance 1</div><div class="p-time" id="pTime">0:00 / 0:00</div></div>
+    <button class="p-btn" id="pBack" aria-label="Reculer de 15 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/><text x="12" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">15</text></svg></button>
+    <button class="p-btn" id="pFwd" aria-label="Avancer de 15 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/><text x="12" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">15</text></svg></button>
+    <button class="p-speed" id="pSpeed" aria-label="Vitesse de lecture">1×</button>
+    <button class="p-btn p-lyrics" id="pLyrics" aria-pressed="true" aria-label="Paroles en direct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 10.5h8M4 15h6"/><circle cx="17" cy="16" r="2.5"/><path d="M19.5 16V7.5l-3 1"/></svg></button>
+  </div>
+  <div class="p-bar" id="pBar" role="slider" aria-label="Position" aria-valuemin="0" tabindex="0"><div class="p-buffer" id="pBuf"></div><div class="p-fill" id="pFill"></div><div class="p-knob" id="pKnob"></div></div>
+</div>
+<button class="follow" id="follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Revenir à la lecture</button>
+<audio id="audio" preload="metadata" playsinline></audio>
 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Réglages">
@@ -440,6 +506,7 @@ function show(name){
   views.forEach(v => $('#view-'+v).classList.toggle('active', v===name));
   $$('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view===name));
   $('#smallTitle').textContent = $('#view-'+name).dataset.title;
+  updatePlayerVisibility();
   window.scrollTo(0, scrollPos[name] || 0);
   store.set('tab', name);
   onScroll();
@@ -475,16 +542,17 @@ function renderTranscript(){
   let html = '';
   p.paragraphs.forEach((para, i) => {
     if (para.chapter) html += `<div class="chapter">${esc(para.chapter)}</div>`;
-    let text = esc(para.text);
-    if (q.length >= 2){
-      const re = new RegExp('(' + normRe(q) + ')', 'gi');
-      text = text.replace(re, '<mark>$1</mark>');
-    }
-    html += `<p class="para" id="p${part}-${i}"><span class="ts"${showTs?'':' style="display:none"'}>${fmt(para.t)}</span>${text}</p>`;
+    const re = q.length >= 2 ? new RegExp('(' + normRe(q) + ')', 'gi') : null;
+    const text = para.segs.map(([t, x]) => {
+      let h = esc(x); if (re) h = h.replace(re, '<mark>$1</mark>');
+      return `<span class="ln" data-t="${t}">${h}</span>`;
+    }).join(' ');
+    html += `<p class="para" id="p${part}-${i}"><span class="ts" role="button" aria-label="Écouter à partir de ${fmt(para.t)}" data-t="${para.t}"${showTs?'':' style="display:none"'}>${fmt(para.t)}</span>${text}</p>`;
   });
   $('#transcript').innerHTML = html;
   $('#partMeta').textContent = `${p.title} · ${fmt(p.duration)} · ${p.words.toLocaleString('fr-FR')} mots`;
   hits = $$('#transcript mark'); hitIdx = -1;
+  indexSegs();
   const nav = $('#searchNav');
   nav.hidden = q.length < 2;
   if (q.length >= 2){
@@ -521,9 +589,164 @@ function setPart(i, restore=true){
   $$('[data-part]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.part===i));
   $('#segThumb').style.transform = `translateX(${i*100}%)`;
   renderTranscript();
+  loadPart(i);
   if (restore){ const pos = store.get('readPos', {}); window.scrollTo(0, pos[i] || 0); }
 }
 $$('[data-part]').forEach(b => b.addEventListener('click', () => { if (+b.dataset.part===part) return; haptic(5); setPart(+b.dataset.part); }));
+
+/* ---------- AUDIO + LIVE LYRICS ---------- */
+const audio = $('#audio');
+const player = $('#player');
+const speeds = [1, 1.25, 1.5, 1.75, 2, 0.75];
+let audioStarted = false, lyricsOn = store.get('lyrics', true), segIndex = [], curSeg = null, followPausedUntil = 0, rafId = 0, loadedPart = -1, audioFailed = false;
+const PLAY = '<path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/>';
+const PAUSE = '<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>';
+
+function indexSegs(){
+  segIndex = $$('#transcript .ln').map(el => ({ t: +el.dataset.t, el }));
+  curSeg = null;
+  if (audioStarted) syncLyrics(true);
+}
+function segAt(t){
+  let lo = 0, hi = segIndex.length - 1, ans = -1;
+  while (lo <= hi){ const m = (lo + hi) >> 1; if (segIndex[m].t <= t + 0.15){ ans = m; lo = m + 1; } else hi = m - 1; }
+  return ans;
+}
+function loadPart(i){
+  if (loadedPart === i) return;
+  const wasPlaying = !audio.paused;
+  if (loadedPart >= 0) savePos();
+  loadedPart = i; audioFailed = false;
+  audio.src = DATA.parts[i].audio;
+  const pos = store.get('audioPos', {})[i] || 0;
+  audio.addEventListener('loadedmetadata', () => { if (pos) audio.currentTime = pos; updateTime(); }, {once:true});
+  $('#pTitle').textContent = 'Séance ' + (i+1);
+  audio.playbackRate = store.get('speed', 1);
+  setMediaSession();
+  if (wasPlaying) audio.play().catch(()=>{});
+  updateTime();
+}
+function savePos(){ const pos = store.get('audioPos', {}); pos[loadedPart] = audio.currentTime || 0; store.set('audioPos', pos); }
+function updatePlayerVisibility(){
+  const on = audioStarted && current === 'cours' && !audioFailed;
+  player.hidden = !on;
+  document.body.classList.toggle('has-player', on);
+  $('#listenCta').hidden = audioStarted && !audioFailed;
+  if (!on) $('#follow').classList.remove('show');
+}
+function startAudio(seekTo){
+  audioStarted = true;
+  document.body.classList.add('audio-on');
+  updatePlayerVisibility();
+  if (typeof seekTo === 'number'){ try{ audio.currentTime = seekTo; }catch(e){} }
+  followPausedUntil = 0;
+  audio.play().catch(err => { if (err && err.name !== 'AbortError') onAudioError(); });
+}
+function onAudioError(){
+  audioFailed = true; audioStarted = false;
+  document.body.classList.remove('audio-on','lyrics');
+  updatePlayerVisibility();
+  toast('Audio indisponible : ouvrez l’app depuis le site');
+}
+audio.addEventListener('error', () => { if (audioStarted) onAudioError(); });
+function setIcon(){ $('#pIcon').innerHTML = audio.paused ? PLAY : PAUSE; $('#pPlay').setAttribute('aria-label', audio.paused ? 'Lecture' : 'Pause'); }
+function updateTime(){
+  const d = audio.duration || DATA.parts[loadedPart].duration, t = audio.currentTime || 0;
+  $('#pTime').textContent = `${fmt(t)} / ${fmt(d)}`;
+  const p = Math.max(0, Math.min(1, t / d));
+  $('#pFill').style.transform = `scaleX(${p})`;
+  $('#pKnob').style.left = (p*100) + '%';
+  $('#pBar').setAttribute('aria-valuenow', Math.round(t)); $('#pBar').setAttribute('aria-valuemax', Math.round(d));
+  try{ if (audio.buffered.length) $('#pBuf').style.transform = `scaleX(${audio.buffered.end(audio.buffered.length-1)/d})`; }catch(e){}
+}
+function syncLyrics(force){
+  if (!segIndex.length) return;
+  const k = segAt(audio.currentTime || 0);
+  const s = k >= 0 ? segIndex[k] : null;
+  if (s === curSeg && !force) return;
+  if (curSeg) curSeg.el.classList.remove('now');
+  // mark past segments in the current paragraph only (cheap)
+  $$('#transcript .ln.past').forEach(e => e.classList.remove('past'));
+  curSeg = s;
+  if (!s) return;
+  s.el.classList.add('now');
+  let prev = s.el.previousElementSibling; while (prev && prev.classList.contains('ln')){ prev.classList.add('past'); prev = prev.previousElementSibling; }
+  if (lyricsOn && !audio.paused) follow(s.el, force);
+}
+function follow(el, force){
+  if (performance.now() < followPausedUntil) return;
+  const r = el.getBoundingClientRect(), vh = innerHeight;
+  const top = 130, bottom = vh - 210;
+  if (!force && r.top > top && r.bottom < bottom - (bottom-top)*0.35) return;
+  const target = scrollY + r.top - Math.max(top, vh*0.3);
+  autoScrolling = performance.now() + 900;
+  window.scrollTo({ top: target, behavior: reduced.matches ? 'auto' : 'smooth' });
+}
+let autoScrolling = 0;
+function userScrolled(){
+  if (!audioStarted || audio.paused || !lyricsOn) return;
+  followPausedUntil = performance.now() + 6000;
+  $('#follow').classList.add('show');
+}
+['touchmove','wheel'].forEach(ev => addEventListener(ev, () => { if (performance.now() > autoScrolling) userScrolled(); }, {passive:true}));
+$('#follow').onclick = () => { followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg) follow(curSeg.el, true); haptic(5); };
+setInterval(() => { if (followPausedUntil && performance.now() > followPausedUntil){ followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg && !audio.paused && lyricsOn) follow(curSeg.el, true); } }, 1000);
+function loop(){ updateTime(); syncLyrics(false); rafId = requestAnimationFrame(loop); }
+audio.addEventListener('play', () => { setIcon(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); document.body.classList.toggle('lyrics', lyricsOn); syncLyrics(true); });
+audio.addEventListener('pause', () => { setIcon(); cancelAnimationFrame(rafId); updateTime(); savePos(); $('#follow').classList.remove('show'); });
+audio.addEventListener('ended', () => { setIcon(); savePos(); });
+audio.addEventListener('timeupdate', () => { if (audio.paused){ updateTime(); syncLyrics(false); } if (Math.floor(audio.currentTime) % 5 === 0) savePos(); });
+audio.addEventListener('loadedmetadata', updateTime);
+audio.addEventListener('progress', updateTime);
+
+$('#listenCta').onclick = () => { haptic(6); startAudio(); };
+$('#pPlay').onclick = () => { haptic(5); if (audio.paused){ followPausedUntil = 0; audio.play().catch(onAudioError); } else audio.pause(); };
+$('#pBack').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime - 15); haptic(4); syncLyrics(true); };
+$('#pFwd').onclick = () => { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 15); haptic(4); syncLyrics(true); };
+function setSpeed(r){ audio.playbackRate = r; store.set('speed', r); $('#pSpeed').textContent = (r+'').replace('.', ',') + '×'; }
+$('#pSpeed').onclick = () => { const i = speeds.indexOf(audio.playbackRate); setSpeed(speeds[(i+1) % speeds.length]); haptic(4); };
+function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); document.body.classList.toggle('lyrics', on && audioStarted); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
+$('#pLyrics').onclick = () => { setLyrics(!lyricsOn); haptic(4); toast(lyricsOn ? 'Paroles en direct activées' : 'Paroles en direct désactivées'); };
+
+// tap on a sentence / timestamp → jump there
+$('#transcript').addEventListener('click', e => {
+  const ts = e.target.closest('.ts');
+  if (ts){ haptic(6); startAudio(+ts.dataset.t); return; }
+  if (!audioStarted) return;
+  const sel = getSelection && getSelection(); if (sel && String(sel).length) return;
+  const sg = e.target.closest('.ln'); if (!sg) return;
+  haptic(5); audio.currentTime = +sg.dataset.t; followPausedUntil = 0; $('#follow').classList.remove('show');
+  if (audio.paused) audio.play().catch(()=>{});
+  syncLyrics(true);
+});
+
+// scrubbing
+(() => {
+  const bar = $('#pBar'); let id = null, wasPlaying = false;
+  const at = x => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (x - r.left) / r.width)) * (audio.duration || DATA.parts[loadedPart].duration); };
+  bar.addEventListener('pointerdown', e => { id = e.pointerId; bar.setPointerCapture(id); bar.classList.add('drag'); wasPlaying = !audio.paused; audio.currentTime = at(e.clientX); updateTime(); syncLyrics(true); });
+  bar.addEventListener('pointermove', e => { if (e.pointerId !== id) return; audio.currentTime = at(e.clientX); updateTime(); syncLyrics(false); });
+  const up = e => { if (e.pointerId !== id) return; id = null; bar.classList.remove('drag'); followPausedUntil = 0; syncLyrics(true); haptic(4); };
+  bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+  bar.addEventListener('keydown', e => { if (e.key==='ArrowRight') $('#pFwd').click(); if (e.key==='ArrowLeft') $('#pBack').click(); });
+})();
+
+// lock screen / Control Center
+function setMediaSession(){
+  if (!('mediaSession' in navigator)) return;
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({ title: DATA.parts[loadedPart].title, artist: 'Cours de philosophie', album: 'Socrate' });
+    const h = {
+      play: () => audio.play(), pause: () => audio.pause(),
+      seekbackward: () => $('#pBack').click(), seekforward: () => $('#pFwd').click(),
+      seekto: d => { audio.currentTime = d.seekTime; },
+      previoustrack: part > 0 ? () => setPart(0) : null, nexttrack: part < 1 ? () => setPart(1) : null
+    };
+    for (const k in h){ try{ navigator.mediaSession.setActionHandler(k, h[k]); }catch(e){} }
+  }catch(e){}
+}
+addEventListener('pagehide', () => { if (loadedPart >= 0) savePos(); });
+addEventListener('keydown', e => { if (e.code === 'Space' && current === 'cours' && audioStarted && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#pPlay').click(); } });
 
 /* ---------- TEXTES ---------- */
 let textIdx = store.get('text', 0);
@@ -742,7 +965,7 @@ $('#resetAll').onclick = () => { initDeck(); qz={i:0,score:0,answered:null}; sto
 /* ---------- boot ---------- */
 setFont(fontSize);
 applyTheme(store.get('theme','auto'));
-DATA.parts.forEach(p => p.words = p.paragraphs.reduce((n, x) => n + x.text.split(/\s+/).length, 0));
+DATA.parts.forEach(p => { p.paragraphs.forEach(x => x.text = x.segs.map(g => g[1]).join(' ')); p.words = p.paragraphs.reduce((n, x) => n + x.text.split(/\s+/).length, 0); });
 renderEssentiel();
 setText(textIdx);
 const savedDeck = store.get('deck', null);
@@ -752,6 +975,7 @@ show(store.get('tab','cours'));
 setPart(part, true);
 applyTs(store.get('ts', true));
 setSheet(innerHeight); sheet.style.visibility='visible';
+setSpeed(store.get('speed', 1)); $('#pLyrics').setAttribute('aria-pressed', lyricsOn);
 </script>
 </body>
 </html>

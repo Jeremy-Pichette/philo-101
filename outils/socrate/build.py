@@ -22,13 +22,16 @@ for i,f in enumerate(content['files']):
             if s['start']>=k: ch=chapters.pop(k); brk=True
         if brk:
             if cur: paras.append(cur)
-            cur={'t':s['start'],'text':txt}
+            cur={'t':s['start'],'text':txt,'segs':[[s['start'],txt]]}
             if ch: cur['chapter']=ch
-        else: cur['text']+=' '+txt
+        else:
+            cur['text']+=' '+txt; cur['segs'].append([s['start'],txt])
         last_end=s['end']
     if cur: paras.append(cur)
-    for p in paras: p['text']=clean(p['text'])
-    parts.append({'title':content['partTitles'][i],'duration':durs[i],'paragraphs':paras})
+    for p in paras:
+        p['segs']=[[t,clean(x)] for t,x in p['segs']]
+        del p['text']
+    parts.append({'title':content['partTitles'][i],'duration':durs[i],'audio':'audio/seance%d.m4a'%(i+1),'paragraphs':paras})
 data={'parts':parts,'texts':content['texts'],'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
 html=open('template.html').read().replace('/*DATA*/null',json.dumps(data,ensure_ascii=False).replace('</','<\\/'))
 open(out,'w').write(html)

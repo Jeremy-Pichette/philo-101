@@ -14,7 +14,8 @@ Chaque module est une page HTML autonome : aucun serveur, aucune dépendance, fo
 
 ### Socrate
 
-- **Cours** : transcription intégrale des deux séances, par chapitres, avec horodatages et recherche
+- **Cours** : transcription intégrale des deux séances, par chapitres, avec recherche
+- **Écoute + paroles en direct** : lecteur audio intégré ; la phrase en cours s’illumine et le texte défile avec la voix (touchez une phrase ou un horodatage pour y sauter, vitesse 0,75× à 2×, contrôles sur l’écran verrouillé)
 - **Textes** : *Apologie* (§ 1-8) et *Criton* (§ 1-101) + corrigé des deux fiches d’activité
 - **L’essentiel** : synthèse en 8 sections et lexique
 - **Fiches** : 34 cartes (glisser → je savais / ← à revoir)
@@ -28,6 +29,7 @@ philo-101/
 ├── socrate/
 │   ├── index.html             # l’app de révision (fichier unique)
 │   ├── transcription.md       # transcription intégrale en texte
+│   ├── audio/                 # enregistrements des 2 séances (volume normalisé, AAC 48 kb/s)
 │   └── sources/               # PowerPoint et fiches du cours (PDF)
 └── outils/socrate/            # scripts qui ont servi à générer l’app
     ├── transcrire.py          # transcription audio (faster-whisper)
@@ -39,5 +41,7 @@ philo-101/
 ```
 
 ## Notes
+
+Les audios ont été normalisés (la voix de la prof était lointaine) et ré-encodés pour la lecture en streaming. Le lecteur ne fonctionne que si l’app est ouverte depuis le site (ou à côté du dossier `audio/`).
 
 La transcription est automatique : les noms propres ont été corrigés, mais certains passages peu audibles (échanges avec la classe) peuvent rester approximatifs. Les textes de Platon sont dans le domaine public (trad. Victor Cousin et Émile Chambry).

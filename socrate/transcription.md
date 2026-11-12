@@ -1,6 +1,6 @@
 # Socrate — Cours de philosophie : transcription intégrale
 
-Transcription automatique des deux enregistrements (noms propres corrigés). Horodatages = position dans l’audio.
+Transcription automatique des deux enregistrements (noms propres corrigés). Horodatages = position dans l’audio ([séance 1](audio/seance1.m4a), [séance 2](audio/seance2.m4a)).
 
 
 ## Séance 1 · Qui était Socrate ? (35:58)
@@ -291,7 +291,7 @@ Transcription automatique des deux enregistrements (noms propres corrigés). Hor
 
 [41:18] Il n'y en avait pas un qui, parce qu'il excellait dans son ordre, ne trouvait bien savoir les choses les plus importantes. Et donc, encore une fois, les artisans se croient sages. Et cette folle présomption gâtait leur habilité, de sorte que me mettant à la place de leur âge et me demandant à moi-même lequel j'aimerais mieux ou d'être tel que je suis, sans leur habilité et aussi sans leur ignorance, ou d'avoir leur avantage avec leur défaut, je me répondrai à moi-même et à l'heure que j'aime mieux être comme je suis.
 
-[41:48] Donc, encore une fois, Socrate est plus sage parce qu'il est simplement ignorant et les artisans sont vraiment ignorants parce qu'ils croient savoir. Ce sont ces recherches athéniennes qui ont excité contre moi tant d'inimitiés dangereuses, de là toutes les calomnies répandues sur mon compte et ma réputation de sage, car tous ceux qui m'entendent croient que je sais toutes les choses sur lesquelles je démasque l'ignorance des autres. Mais, Athéniens, la vérité est qu'Apollon seul est sage, et qu'il a voulu dire seulement par son oracle que la sagesse humaine n'est pas grand-chose, ou même qu'elle n'est rien, et l'évident que l'oracle ne parle pas d'ici de moi, mais qu'il s'est servi de mon nom comme d'un exemple, et comme s'il lui dit à tous les hommes des puissances entre vous, c'est celui qui, comme Socrate, reconnaît que sa sagesse n'est rien.
+[41:48] Donc, encore une fois, Socrate est plus sage parce qu'il est simplement ignorant et les artisans sont vraiment ignorants parce qu'ils croient savoir. Ce sont ces recherches athéniennes qui ont excité contre moi tant d'inimitiés dangereuses, de là toutes les calomnies répandues sur mon compte et ma réputation de sage, car tous ceux qui m'entendent croient que je sais toutes les choses sur lesquelles je démarre et de l'horreur des autres. Mais, Athéniens, la vérité est qu'Apollon seul est sage, et qu'il a voulu dire seulement par son oracle que la sagesse humaine n'est pas grand-chose, ou même qu'elle n'est rien, et l'évident que l'oracle ne parle pas d'ici de moi, mais qu'il s'est servi de mon nom comme d'un exemple, et comme s'il lui dit à tous les hommes des puissances entre vous, c'est celui qui, comme Socrate, reconnaît que sa sagesse n'est rien.
 
 [42:38] L'importance. Je connais que sa sagesse m'est liée. Converti de cette vérité pour m'en assurer encore davantage et pour obéir aux dieux, je continue ces recherches et je vais examiner tous ceux de nos concitoyens et des étrangers en qui j'espère trouver la vraie sagesse. Et quand je n'ai vu trop de points, je sers d'interprète à l'oracle, alors qu'on a voir qu'ils ne sont point sages. Cela m'occupe si fort que je n'ai pas eu le temps d'être un peu utile à la pub publique ni à ma famille et mon mouvement s'en veut que j'ai mangé dans une gêne extrême.
 

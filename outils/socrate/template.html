@@ -6,6 +6,21 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f1e9">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14110e">
+<script>
+/* Thème appliqué avant le premier rendu : iOS lit la couleur de la barre d'état au chargement */
+(function(){
+  var C = { light: '#f6f1e9', dark: '#14110e' }, t = 'auto';
+  try { t = JSON.parse(localStorage.getItem('socrate:theme')) || 'auto'; } catch (e) {}
+  if (t !== 'light' && t !== 'dark') return;
+  var r = document.documentElement;
+  r.setAttribute('data-theme', t); r.style.colorScheme = t;
+  var cs = document.querySelector('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t);
+  var ms = document.querySelectorAll('meta[name="theme-color"]');
+  for (var i = 0; i < ms.length; i++) ms[i].parentNode.removeChild(ms[i]);
+  var m = document.createElement('meta'); m.name = 'theme-color'; m.content = C[t];
+  (cs || document.head.firstChild).insertAdjacentElement('afterend', m);
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -502,10 +517,16 @@ function applyTheme(t){
   // Safari (barre d'état, zones de rebond, contrôles natifs) suit le choix de l'app, pas seulement celui de l'iPhone
   const cs = $('meta[name="color-scheme"]'); if (cs) cs.setAttribute('content', t==='auto' ? 'light dark' : t);
   root.style.colorScheme = t==='auto' ? '' : t;
-  // Couleur de la barre système : forcée si Clair/Sombre, sinon une par apparence de l'iPhone
-  $$('meta[name="theme-color"]').forEach(m => {
-    const media = (m.getAttribute('media') || '').includes('dark') ? 'dark' : 'light';
-    m.setAttribute('content', t==='auto' ? THEME_BG[media] : THEME_BG[t]);
+  // Couleur de la barre système : nouvelles balises (Safari réagit mieux à une insertion qu'à une modification)
+  $$('meta[name="theme-color"]').forEach(m => m.remove());
+  const metas = t==='auto'
+    ? [['light', '(prefers-color-scheme: light)'], ['dark', '(prefers-color-scheme: dark)']]
+    : [[t, null]];
+  let after = cs || document.head.firstElementChild;
+  metas.forEach(([k, media]) => {
+    const m = document.createElement('meta'); m.name = 'theme-color'; m.content = THEME_BG[k];
+    if (media) m.media = media;
+    after.insertAdjacentElement('afterend', m); after = m;
   });
 }
 function applyTs(on){ document.documentElement.style.setProperty('--ts-display', on?'inline-block':'none');

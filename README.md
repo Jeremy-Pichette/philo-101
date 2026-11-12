@@ -22,7 +22,7 @@ Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d
 - **Écoute + paroles en direct** : lecteur audio intégré ; la phrase en cours s’illumine et le texte défile avec la voix (touchez une phrase ou un horodatage pour y sauter, vitesse 0,75× à 2×, contrôles sur l’écran verrouillé)
 - **Textes** : *Apologie* (§ 1-8) et *Criton* (§ 1-101) + corrigé des deux fiches d’activité
 - **Textes lus à voix haute** : synthèse vocale (voix « Tom », Piper) pré-enregistrée, la phrase lue s’illumine ; toucher un numéro de § ou une phrase pour y sauter
-- **L’essentiel** : synthèse en 8 sections et lexique
+- **L’essentiel** : les 23 diapositives du cours (vignettes + visionneuse plein écran, PDF), synthèse en 8 sections et lexique
 - **Fiches** : 34 cartes (glisser → je savais / ← à revoir)
 - **Quiz** : 20 questions avec explications
 
@@ -39,6 +39,7 @@ philo-101/
 │   ├── icons/                 # icône du module (raccourci)
 │   ├── transcription.md       # transcription intégrale en texte
 │   ├── audio/                 # séances enregistrées + textes lus (texte-apologie, texte-criton)
+│   ├── diapos/                # diapositives du PowerPoint en images (+ mini/ pour les vignettes)
 │   └── sources/               # PowerPoint et fiches du cours (PDF)
 └── outils/socrate/            # scripts qui ont servi à générer l’app
     ├── transcrire.py          # transcription audio (faster-whisper)

@@ -205,6 +205,36 @@ mark.cur{background:var(--mark-cur)}
 .steps li::before{content:counter(a);position:absolute;left:12px;top:11px;width:20px;height:20px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
 .ref{font-size:11.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:1px 5px;margin-left:4px;white-space:nowrap;font-family:var(--sans)}
 
+/* ---------- Diapositives du cours ---------- */
+.slides-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;margin:0 -16px 10px;padding:2px 16px 8px;scroll-padding:0 16px;scrollbar-width:none}
+.slides-row::-webkit-scrollbar{display:none}
+.thumb{flex:none;width:min(62vw,240px);scroll-snap-align:start;text-align:left;transition:transform .14s var(--ease-out)}
+.thumb:active{transform:scale(.97)}
+.thumb img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;background:var(--bg-2);box-shadow:var(--shadow)}
+.thumb span{display:block;margin-top:6px;font-size:13px;color:var(--ink-2);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.thumb b{color:var(--accent);font-weight:700;margin-right:4px;font-variant-numeric:tabular-nums}
+.slides-actions{display:flex;gap:8px;margin:0 0 18px}
+.slides-actions .btn{height:42px;font-size:15px;padding:0 16px;text-decoration:none}
+.viewer{position:fixed;inset:0;z-index:70;background:#0d0b09;color:#f1ebe2;display:flex;flex-direction:column;opacity:0;transform:scale(.97);pointer-events:none;
+  transition:opacity .2s var(--ease-out),transform .24s var(--ease-out)}
+.viewer.open{opacity:1;transform:none;pointer-events:auto}
+.viewer[hidden]{display:none}
+.v-bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;flex:none}
+.v-btn{height:36px;min-width:36px;padding:0 12px;border-radius:18px;background:rgba(255,255,255,.12);color:#f1ebe2;font-size:15px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;transition:transform .12s var(--ease-out),background-color .15s}
+.v-btn:active{transform:scale(.94);background:rgba(255,255,255,.2)}
+.v-btn svg{width:18px;height:18px}
+.v-count{flex:1;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v-count small{display:block;font-size:12px;font-weight:500;opacity:.6;overflow:hidden;text-overflow:ellipsis}
+.v-track{flex:1;min-height:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior:contain;scrollbar-width:none;touch-action:pan-x pinch-zoom}
+.v-track::-webkit-scrollbar{display:none}
+.v-slide{flex:none;width:100%;height:100%;min-height:0;scroll-snap-align:center;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center;padding:8px 10px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.v-slide img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff}
+.v-nav{position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:22px;background:rgba(255,255,255,.14);color:#fff;display:none;place-items:center}
+.v-nav svg{width:22px;height:22px}
+.v-prev{left:12px}.v-next{right:12px}
+@media (hover:hover) and (pointer:fine){.v-nav{display:grid}.v-nav:hover{background:rgba(255,255,255,.24)}.thumb:hover img{box-shadow:var(--shadow-lg)}}
+@media (prefers-reduced-motion:reduce){.viewer{transform:none;transition:opacity .15s ease}}
+
 /* ---------- Flashcards ---------- */
 .deck-meta{display:flex;justify-content:space-between;align-items:center;margin:0 2px 12px;font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums}
 .pills{display:flex;gap:6px}
@@ -475,6 +505,16 @@ body.has-player #view-cours{padding-bottom:96px}
 <button class="follow" id="follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Revenir à la lecture</button>
 <audio id="audio" preload="metadata" playsinline></audio>
 
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Diapositives du cours">
+  <div class="v-bar">
+    <button class="v-btn" id="vClose">Fermer</button>
+    <div class="v-count" id="vCount" aria-live="polite"></div>
+    <a class="v-btn" id="vPdf" href="sources/Socrate_PowerPoint.pdf" target="_blank" rel="noopener" aria-label="Ouvrir le PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg>PDF</a>
+  </div>
+  <div class="v-track" id="vTrack"></div>
+  <button class="v-nav v-prev" id="vPrev" aria-label="Diapositive précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="v-nav v-next" id="vNext" aria-label="Diapositive suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Réglages">
   <div class="sheet-head"><div class="grabber"></div><h3>Réglages</h3></div>
@@ -918,6 +958,44 @@ $('#installBtn').onclick = async () => {
 };
 if (standalone) document.documentElement.classList.add('standalone');
 
+/* ---------- Visionneuse des diapositives ---------- */
+const viewer = $('#viewer'), vTrack = $('#vTrack');
+let vIndex = 0, vBuilt = false, vReturnFocus = null;
+function buildViewer(){
+  if (vBuilt || !DATA.slides) return; vBuilt = true;
+  vTrack.innerHTML = DATA.slides.map((d, i) => `<div class="v-slide" role="group" aria-roledescription="diapositive" aria-label="${i+1} sur ${DATA.slides.length}"><img src="${d.img}" alt="${esc(d.title)}" ${i > 1 ? 'loading="lazy"' : ''} decoding="async"></div>`).join('');
+}
+function vCount(){ const d = DATA.slides[vIndex]; $('#vCount').innerHTML = `${vIndex+1} / ${DATA.slides.length}<small>${esc(d.title)}</small>`; }
+function vGo(i, smooth){
+  vIndex = Math.max(0, Math.min(DATA.slides.length - 1, i));
+  vTrack.scrollTo({ left: vIndex * vTrack.clientWidth, behavior: smooth && !reduced.matches ? 'smooth' : 'auto' });
+  vCount();
+}
+function openSlides(i){
+  buildViewer(); vReturnFocus = document.activeElement;
+  viewer.hidden = false; document.documentElement.style.overflow = 'hidden';
+  requestAnimationFrame(() => { vGo(i, false); viewer.classList.add('open'); $('#vClose').focus({ preventScroll: true }); });
+  if (audioStarted && !audio.paused) $('#follow').classList.remove('show');
+}
+function closeSlides(){
+  viewer.classList.remove('open'); document.documentElement.style.overflow = '';
+  setTimeout(() => { if (!viewer.classList.contains('open')) viewer.hidden = true; }, 260);
+  if (vReturnFocus) vReturnFocus.focus({ preventScroll: true });
+}
+let vScrollT;
+vTrack.addEventListener('scroll', () => { const i = Math.round(vTrack.scrollLeft / vTrack.clientWidth); if (i !== vIndex){ vIndex = i; vCount(); haptic(3); } }, { passive: true });
+addEventListener('resize', () => { if (!viewer.hidden) vGo(vIndex, false); });
+$('#vClose').onclick = () => { haptic(4); closeSlides(); };
+$('#vPrev').onclick = () => vGo(vIndex - 1, true);
+$('#vNext').onclick = () => vGo(vIndex + 1, true);
+addEventListener('keydown', e => {
+  if (viewer.hidden) return;
+  if (e.key === 'Escape') closeSlides();
+  else if (e.key === 'ArrowRight') { e.preventDefault(); vGo(vIndex + 1, true); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); vGo(vIndex - 1, true); }
+});
+$('#essentiel').addEventListener('click', e => { const t = e.target.closest('[data-slide]'); if (t){ haptic(5); openSlides(+t.dataset.slide); } });
+
 /* ---------- TEXTES ---------- */
 let textIdx = store.get('text', 0);
 function secHTML(title, html, open, num){
@@ -969,6 +1047,11 @@ $$('[data-text]').forEach(b => b.addEventListener('click', () => {
 function renderEssentiel(){
   const E = DATA.essentiel;
   let html = `<div class="ess-hero"><h2>${esc(E.hero.title)}</h2><p>${E.hero.text}</p></div>`;
+  if (DATA.slides && DATA.slides.length){
+    html += `<div class="h-section">Diapositives du cours</div><div class="slides-row" role="list">` +
+      DATA.slides.map((d, i) => `<button class="thumb" role="listitem" data-slide="${i}" aria-label="Diapositive ${i+1} : ${esc(d.title)}"><img src="${d.mini}" alt="" loading="lazy" decoding="async"><span><b>${i+1}</b>${esc(d.title)}</span></button>`).join('') +
+      `</div><div class="slides-actions"><button class="btn" data-slide="0">Voir les ${DATA.slides.length} diapositives</button><a class="btn ghost" href="sources/Socrate_PowerPoint.pdf" target="_blank" rel="noopener">PDF du cours</a></div>`;
+  }
   html += `<div class="h-section">Le cours, étape par étape</div>`;
   E.sections.forEach((s, i) => html += secHTML(s.title, s.html, i===0, i+1));
   html += `<div class="h-section">Vocabulaire</div><div class="glossary">` +

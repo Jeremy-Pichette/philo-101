@@ -3,7 +3,7 @@
    - Autres fichiers (icônes, PDF, manifestes) : cache d'abord, mise à jour en arrière-plan
    - Audios : servis depuis le cache « hors ligne » s'ils ont été téléchargés (avec gestion des requêtes Range,
      indispensable à Safari), sinon directement depuis le réseau. */
-const VERSION = '2026-11-12-6';
+const VERSION = '2026-11-12-7';
 const CORE = 'philo-core-' + VERSION;
 const RUNTIME = 'philo-runtime';
 const AUDIO = 'philo-audio';

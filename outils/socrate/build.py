@@ -45,7 +45,8 @@ for t,(key,short) in zip(texts,[('apologie','Apologie'),('criton','Criton')]):
             if para['n'] in by:
                 assert ' '.join(x for _,x in by[para['n']])==para['text'], para['n']
                 para['sents']=by[para['n']]
-data={'parts':parts,'texts':texts,'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
+slides=json.load(open('diapos.json')) if os.path.exists('diapos.json') else []
+data={'parts':parts,'texts':texts,'slides':slides,'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
 html=open('template.html').read().replace('/*DATA*/null',json.dumps(data,ensure_ascii=False).replace('</','<\\/'))
 open(out,'w').write(html)
 print(out, len(html)//1024,'KB', [len(p['paragraphs']) for p in parts])

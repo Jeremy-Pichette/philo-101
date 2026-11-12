@@ -296,10 +296,14 @@ mark.cur{background:var(--mark-cur)}
 body.audio-on .ln{cursor:pointer}
 body.audio-on .ln:active{background:var(--accent-soft)}
 .ln.now{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
-body.lyrics .transcript .ln{color:var(--ink-3)}
-body.lyrics .transcript .ln.now{color:var(--ink)}
-body.lyrics .transcript .ln.past{color:var(--ink-2)}
-body.lyrics .transcript .ts{opacity:.55}
+.lyrics-on .ln{color:var(--ink-3)}
+.lyrics-on .ln.now{color:var(--ink)}
+.lyrics-on .ln.past{color:var(--ink-2)}
+.lyrics-on .ts{opacity:.55}
+.lyrics-on .who{opacity:.7}
+.has-audio .tp .n{cursor:pointer;border-radius:6px;transition:background-color .15s ease,color .15s ease}
+.has-audio .tp .n:active{background:var(--accent-soft)}
+body.has-player #view-textes{padding-bottom:96px}
 body.has-player #view-cours{padding-bottom:96px}
 .player{position:fixed;z-index:35;left:50%;width:min(560px,calc(100% - 20px));bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 10px);
   transform:translate(-50%,0);background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
@@ -480,7 +484,7 @@ body.has-player #view-cours{padding-bottom:96px}
     </div></div>
   <div class="row"><label>Horodatages</label>
     <div class="chips" id="tsChips"><button class="chip" data-ts="on">Afficher</button><button class="chip" data-ts="off">Masquer</button></div></div>
-  <div class="row" id="offlineRow" hidden><label>Audios hors ligne<small id="offlineInfo">31 Mo · pour écouter sans réseau</small></label><button class="chip" id="offlineBtn">Télécharger</button></div>
+  <div class="row" id="offlineRow" hidden><label>Audios hors ligne<small id="offlineInfo">50 Mo · cours et textes lus, sans réseau</small></label><button class="chip" id="offlineBtn">Télécharger</button></div>
   <div class="row" id="installRow" hidden><label>Installer Philo 101<small id="installInfo">L’app complète sur l’écran d’accueil</small></label><button class="chip" id="installBtn">Installer</button></div>
   <div class="row"><label>Progression</label><button class="chip" id="resetAll">Réinitialiser</button></div>
   <p class="about">Transcription automatique intégrale des deux enregistrements (noms propres corrigés ; quelques passages peu audibles, notamment les échanges avec la classe, peuvent rester approximatifs). Les horodatages renvoient à la position dans l’audio d’origine. Une fois ouverte, l’app fonctionne hors ligne ; téléchargez les audios ci-dessus pour les écouter sans réseau. Pour l’installer : dans Safari, touchez Partager → « Sur l’écran d’accueil ».</p>
@@ -644,89 +648,112 @@ function setPart(i, restore=true){
   $$('[data-part]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.part===i));
   $('#segThumb').style.transform = `translateX(${i*100}%)`;
   renderTranscript();
-  loadPart(i);
+  if (!srcKey || srcKey[0] === 'c') loadSource('c' + i); else updateCtas();
   if (restore){ const pos = store.get('readPos', {}); window.scrollTo(0, pos[i] || 0); }
 }
 $$('[data-part]').forEach(b => b.addEventListener('click', () => { if (+b.dataset.part===part) return; haptic(5); setPart(+b.dataset.part); }));
 
-/* ---------- AUDIO + LIVE LYRICS ---------- */
+/* ---------- AUDIO + LIVE LYRICS (cours enregistré et textes lus) ---------- */
+/* Une source = 'c0' | 'c1' (séances du cours) ou 't0' | 't1' (textes lus par la synthèse vocale). */
 const audio = $('#audio');
 const player = $('#player');
 const speeds = [1, 1.25, 1.5, 1.75, 2, 0.75];
-let audioStarted = false, lyricsOn = store.get('lyrics', true), segIndex = [], curSeg = null, followPausedUntil = 0, rafId = 0, loadedPart = -1, audioFailed = false;
+let audioStarted = false, lyricsOn = store.get('lyrics', true), segIndex = [], curSeg = null, followPausedUntil = 0, rafId = 0, srcKey = null, audioFailed = false, pendingSeek = null;
 const PLAY = '<path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/>';
 const PAUSE = '<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>';
 
+function info(k){
+  const i = +k[1];
+  if (k[0] === 'c') { const p = DATA.parts[i]; return { view: 'cours', i, src: p.audio, dur: p.duration, title: 'Séance ' + (i+1), full: p.title, artist: 'Cours de philosophie', root: $('#transcript'), shown: () => part === i }; }
+  const t = DATA.texts[i]; return { view: 'textes', i, src: t.audio, dur: t.duration, title: t.short, full: t.short + ' · Platon', artist: 'Platon · voix de synthèse', root: $('#textes .text'), shown: () => textIdx === i };
+}
+const posKey = k => k[0] === 'c' ? k[1] : k;   // les séances gardent leurs anciennes clés (0, 1)
+
 function indexSegs(){
-  segIndex = $$('#transcript .ln').map(el => ({ t: +el.dataset.t, el }));
-  curSeg = null;
-  if (audioStarted) syncLyrics(true);
+  $$('.lyrics-on').forEach(e => e.classList.remove('lyrics-on'));
+  $$('.ln.now, .ln.past').forEach(e => e.classList.remove('now', 'past'));
+  segIndex = []; curSeg = null;
+  if (!srcKey) return;
+  const s = info(srcKey);
+  if (!s.root || !s.shown()) return;
+  segIndex = $$('.ln', s.root).map(el => ({ t: +el.dataset.t, el }));
+  if (audioStarted) { s.root.classList.toggle('lyrics-on', lyricsOn); syncLyrics(true); }
 }
 function segAt(t){
   let lo = 0, hi = segIndex.length - 1, ans = -1;
   while (lo <= hi){ const m = (lo + hi) >> 1; if (segIndex[m].t <= t + 0.15){ ans = m; lo = m + 1; } else hi = m - 1; }
   return ans;
 }
-function loadPart(i){
-  if (loadedPart === i) return;
-  const wasPlaying = !audio.paused;
-  if (loadedPart >= 0) savePos();
-  loadedPart = i; audioFailed = false;
-  audio.src = DATA.parts[i].audio;
-  const pos = store.get('audioPos', {})[i] || 0;
-  audio.addEventListener('loadedmetadata', () => { if (pos) audio.currentTime = pos; updateTime(); }, {once:true});
-  $('#pTitle').textContent = 'Séance ' + (i+1);
+function loadSource(k){
+  if (srcKey === k) return;
+  const wasPlaying = audioStarted && !audio.paused;
+  if (srcKey) savePos();
+  srcKey = k; audioFailed = false;
+  const s = info(k);
+  pendingSeek = store.get('audioPos', {})[posKey(k)] || null;
+  audio.src = s.src;
+  $('#pTitle').textContent = s.title;
   audio.playbackRate = store.get('speed', 1);
   setMediaSession();
+  indexSegs();
+  updateCtas();
   if (wasPlaying) audio.play().catch(()=>{});
   updateTime();
 }
-function savePos(){ const pos = store.get('audioPos', {}); pos[loadedPart] = audio.currentTime || 0; store.set('audioPos', pos); }
+audio.addEventListener('loadedmetadata', () => { if (pendingSeek != null){ try{ audio.currentTime = pendingSeek; }catch(e){} pendingSeek = null; } audio.playbackRate = store.get('speed', 1); updateTime(); syncLyrics(true); });
+function savePos(){ if (!srcKey) return; const pos = store.get('audioPos', {}); pos[posKey(srcKey)] = audio.currentTime || 0; store.set('audioPos', pos); }
+function updateCtas(){
+  const lc = $('#listenCta'); if (lc) lc.hidden = audioStarted && !audioFailed && srcKey === 'c' + part;
+  const rc = $('#textes .read-cta'); if (rc) rc.hidden = audioStarted && !audioFailed && srcKey === 't' + textIdx;
+}
 function updatePlayerVisibility(){
-  const on = audioStarted && current === 'cours' && !audioFailed;
+  const on = audioStarted && !audioFailed && (current === 'cours' || current === 'textes');
   player.hidden = !on;
   document.body.classList.toggle('has-player', on);
-  $('#listenCta').hidden = audioStarted && !audioFailed;
+  updateCtas();
   if (!on) $('#follow').classList.remove('show');
 }
-function startAudio(seekTo){
+function startAudio(k, seekTo){
+  loadSource(k);
   audioStarted = true;
   document.body.classList.add('audio-on');
   updatePlayerVisibility();
-  if (typeof seekTo === 'number'){ try{ audio.currentTime = seekTo; }catch(e){} }
+  if (typeof seekTo === 'number'){ if (audio.readyState >= 1){ try{ audio.currentTime = seekTo; }catch(e){} } else pendingSeek = seekTo; }
   followPausedUntil = 0;
+  indexSegs();
   audio.play().catch(err => { if (err && err.name !== 'AbortError') onAudioError(); });
 }
 function onAudioError(){
   audioFailed = true; audioStarted = false;
-  document.body.classList.remove('audio-on','lyrics');
+  document.body.classList.remove('audio-on');
+  $$('.lyrics-on').forEach(e => e.classList.remove('lyrics-on'));
   updatePlayerVisibility();
   toast(navigator.onLine === false ? 'Hors ligne : téléchargez les audios dans Réglages' : 'Audio indisponible : ouvrez l’app depuis le site');
 }
 audio.addEventListener('error', () => { if (audioStarted) onAudioError(); });
 function setIcon(){ $('#pIcon').innerHTML = audio.paused ? PLAY : PAUSE; $('#pPlay').setAttribute('aria-label', audio.paused ? 'Lecture' : 'Pause'); }
 function updateTime(){
-  const d = audio.duration || DATA.parts[loadedPart].duration, t = audio.currentTime || 0;
+  if (!srcKey) return;
+  const d = audio.duration || info(srcKey).dur, t = audio.currentTime || 0;
   const sec = Math.floor(t);
-  if (sec !== updateTime.sec){ updateTime.sec = sec; $('#pCur').textContent = fmt(t); $('#pDur').textContent = fmt(d); $('#pBar').setAttribute('aria-valuenow', sec); $('#pBar').setAttribute('aria-valuemax', Math.round(d)); }
+  if (sec !== updateTime.sec || d !== updateTime.d){ updateTime.sec = sec; updateTime.d = d; $('#pCur').textContent = fmt(t); $('#pDur').textContent = fmt(d); $('#pBar').setAttribute('aria-valuenow', sec); $('#pBar').setAttribute('aria-valuemax', Math.round(d)); }
   const p = Math.max(0, Math.min(1, t / d));
   $('#pFill').style.transform = `scaleX(${p})`;
   $('#pKnob').style.left = (p*100) + '%';
   try{ if (audio.buffered.length) $('#pBuf').style.transform = `scaleX(${audio.buffered.end(audio.buffered.length-1)/d})`; }catch(e){}
 }
 function syncLyrics(force){
-  if (!segIndex.length) return;
+  if (!segIndex.length || !audioStarted) return;
   const k = segAt(audio.currentTime || 0);
   const s = k >= 0 ? segIndex[k] : null;
   if (s === curSeg && !force) return;
   if (curSeg) curSeg.el.classList.remove('now');
-  // mark past segments in the current paragraph only (cheap)
-  $$('#transcript .ln.past').forEach(e => e.classList.remove('past'));
+  $$('.ln.past').forEach(e => e.classList.remove('past'));
   curSeg = s;
   if (!s) return;
   s.el.classList.add('now');
   let prev = s.el.previousElementSibling; while (prev && prev.classList.contains('ln')){ prev.classList.add('past'); prev = prev.previousElementSibling; }
-  if (lyricsOn && !audio.paused) follow(s.el, force);
+  if (lyricsOn && !audio.paused && current === info(srcKey).view) follow(s.el, force);
 }
 function follow(el, force){
   if (performance.now() < followPausedUntil) return;
@@ -739,7 +766,7 @@ function follow(el, force){
 }
 let autoScrolling = 0;
 function userScrolled(){
-  if (!audioStarted || audio.paused || !lyricsOn) return;
+  if (!audioStarted || audio.paused || !lyricsOn || !segIndex.length || current !== info(srcKey).view) return;
   followPausedUntil = performance.now() + 6000;
   $('#follow').classList.add('show');
 }
@@ -747,61 +774,74 @@ function userScrolled(){
 $('#follow').onclick = () => { followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg) follow(curSeg.el, true); haptic(5); };
 setInterval(() => { if (followPausedUntil && performance.now() > followPausedUntil){ followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg && !audio.paused && lyricsOn) follow(curSeg.el, true); } }, 1000);
 function loop(){ updateTime(); syncLyrics(false); rafId = requestAnimationFrame(loop); }
-audio.addEventListener('play', () => { setIcon(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); document.body.classList.toggle('lyrics', lyricsOn); syncLyrics(true); });
+audio.addEventListener('play', () => { setIcon(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); indexSegs(); });
 audio.addEventListener('pause', () => { setIcon(); cancelAnimationFrame(rafId); updateTime(); savePos(); $('#follow').classList.remove('show'); });
 audio.addEventListener('ended', () => { setIcon(); savePos(); });
 audio.addEventListener('timeupdate', () => { if (audio.paused){ updateTime(); syncLyrics(false); } if (Math.floor(audio.currentTime) % 5 === 0) savePos(); });
-audio.addEventListener('loadedmetadata', updateTime);
 audio.addEventListener('progress', updateTime);
 
-$('#listenCta').onclick = () => { haptic(6); startAudio(); };
+$('#listenCta').onclick = () => { haptic(6); startAudio('c' + part); };
 $('#pPlay').onclick = () => { haptic(5); if (audio.paused){ followPausedUntil = 0; audio.play().catch(onAudioError); } else audio.pause(); };
 $('#pBack').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime - 15); haptic(4); syncLyrics(true); };
 $('#pFwd').onclick = () => { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 15); haptic(4); syncLyrics(true); };
 function setSpeed(r){ audio.playbackRate = r; store.set('speed', r); $('#pSpeed').textContent = (r+'').replace('.', ',') + '×'; }
 $('#pSpeed').onclick = () => { const i = speeds.indexOf(audio.playbackRate); setSpeed(speeds[(i+1) % speeds.length]); haptic(4); };
-function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); document.body.classList.toggle('lyrics', on && audioStarted); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
+function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); indexSegs(); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
 $('#pLyrics').onclick = () => { setLyrics(!lyricsOn); haptic(4); toast(lyricsOn ? 'Paroles en direct activées' : 'Paroles en direct désactivées'); };
 
-// tap on a sentence / timestamp → jump there
+// Toucher une phrase (source active) ou un repère (horodatage, numéro de §) pour y sauter
+function jumpTo(k, t){
+  haptic(5); followPausedUntil = 0; $('#follow').classList.remove('show');
+  if (!audioStarted || srcKey !== k) { startAudio(k, t); return; }
+  audio.currentTime = t; if (audio.paused) audio.play().catch(()=>{});
+  syncLyrics(true);
+}
+const selecting = () => { const sel = getSelection && getSelection(); return sel && String(sel).length > 0; };
 $('#transcript').addEventListener('click', e => {
   const ts = e.target.closest('.ts');
-  if (ts){ haptic(6); startAudio(+ts.dataset.t); return; }
-  if (!audioStarted) return;
-  const sel = getSelection && getSelection(); if (sel && String(sel).length) return;
-  const sg = e.target.closest('.ln'); if (!sg) return;
-  haptic(5); audio.currentTime = +sg.dataset.t; followPausedUntil = 0; $('#follow').classList.remove('show');
-  if (audio.paused) audio.play().catch(()=>{});
-  syncLyrics(true);
+  if (ts) return jumpTo('c' + part, +ts.dataset.t);
+  if (!audioStarted || srcKey !== 'c' + part || selecting()) return;
+  const sg = e.target.closest('.ln'); if (sg) jumpTo('c' + part, +sg.dataset.t);
+});
+$('#textes').addEventListener('click', e => {
+  const k = 't' + textIdx;
+  if (e.target.closest('.read-cta')) { haptic(6); return startAudio(k); }
+  const n = e.target.closest('.tp .n');
+  if (n){ const first = n.parentElement.querySelector('.ln'); if (first) jumpTo(k, +first.dataset.t); return; }
+  if (!audioStarted || srcKey !== k || selecting()) return;
+  const sg = e.target.closest('.ln'); if (sg) jumpTo(k, +sg.dataset.t);
 });
 
-// scrubbing
+// Barre de progression
 (() => {
-  const bar = $('#pBar'); let id = null, wasPlaying = false;
-  const at = x => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (x - r.left) / r.width)) * (audio.duration || DATA.parts[loadedPart].duration); };
-  bar.addEventListener('pointerdown', e => { id = e.pointerId; bar.setPointerCapture(id); bar.classList.add('drag'); wasPlaying = !audio.paused; audio.currentTime = at(e.clientX); updateTime(); syncLyrics(true); });
+  const bar = $('#pBar'); let id = null;
+  const at = x => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (x - r.left) / r.width)) * (audio.duration || info(srcKey).dur); };
+  bar.addEventListener('pointerdown', e => { if (!srcKey) return; id = e.pointerId; bar.setPointerCapture(id); bar.classList.add('drag'); audio.currentTime = at(e.clientX); updateTime(); syncLyrics(true); });
   bar.addEventListener('pointermove', e => { if (e.pointerId !== id) return; audio.currentTime = at(e.clientX); updateTime(); syncLyrics(false); });
   const up = e => { if (e.pointerId !== id) return; id = null; bar.classList.remove('drag'); followPausedUntil = 0; syncLyrics(true); haptic(4); };
   bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
   bar.addEventListener('keydown', e => { if (e.key==='ArrowRight') $('#pFwd').click(); if (e.key==='ArrowLeft') $('#pBack').click(); });
 })();
 
-// lock screen / Control Center
+// Écran verrouillé / Centre de contrôle
 function setMediaSession(){
-  if (!('mediaSession' in navigator)) return;
+  if (!('mediaSession' in navigator) || !srcKey) return;
   try{
-    navigator.mediaSession.metadata = new MediaMetadata({ title: DATA.parts[loadedPart].title, artist: 'Cours de philosophie', album: 'Socrate' });
+    const s = info(srcKey);
+    navigator.mediaSession.metadata = new MediaMetadata({ title: s.full, artist: s.artist, album: 'Socrate · Philo 101' });
+    const kind = srcKey[0], max = kind === 'c' ? DATA.parts.length - 1 : DATA.texts.length - 1;
+    const go = i => () => { if (kind === 'c') setPart(i); else setText(i); startAudio(kind + i); };
     const h = {
       play: () => audio.play(), pause: () => audio.pause(),
       seekbackward: () => $('#pBack').click(), seekforward: () => $('#pFwd').click(),
       seekto: d => { audio.currentTime = d.seekTime; },
-      previoustrack: part > 0 ? () => setPart(0) : null, nexttrack: part < 1 ? () => setPart(1) : null
+      previoustrack: s.i > 0 ? go(s.i - 1) : null, nexttrack: s.i < max ? go(s.i + 1) : null
     };
     for (const k in h){ try{ navigator.mediaSession.setActionHandler(k, h[k]); }catch(e){} }
   }catch(e){}
 }
-addEventListener('pagehide', () => { if (loadedPart >= 0) savePos(); });
-addEventListener('keydown', e => { if (e.code === 'Space' && current === 'cours' && audioStarted && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#pPlay').click(); } });
+addEventListener('pagehide', savePos);
+addEventListener('keydown', e => { if (e.code === 'Space' && (current === 'cours' || current === 'textes') && audioStarted && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#pPlay').click(); } });
 
 /* ---------- Navigation dans l'app Philo 101 ---------- */
 $('.back').addEventListener('click', () => { haptic(4); try{ sessionStorage.setItem('philo:nav', 'back'); }catch(e){} });
@@ -812,7 +852,7 @@ addEventListener('offline', () => toast('Hors ligne · le contenu reste disponib
 addEventListener('online', () => toast('De retour en ligne'));
 
 const AUDIO_CACHE = 'philo-audio';
-const audioUrls = () => DATA.parts.map(p => new URL(p.audio, location.href).href);
+const audioUrls = () => [...DATA.parts, ...DATA.texts].filter(p => p.audio).map(p => new URL(p.audio, location.href).href);
 let downloading = false;
 async function offlineStatus(){
   const row = $('#offlineRow'), btn = $('#offlineBtn'), info = $('#offlineInfo');
@@ -823,8 +863,9 @@ async function offlineStatus(){
     const c = await caches.open(AUDIO_CACHE);
     const hits = (await Promise.all(audioUrls().map(u => c.match(u)))).filter(Boolean).length;
     btn.classList.remove('progress'); btn.disabled = false; btn.style.removeProperty('--p');
-    if (hits === DATA.parts.length){ info.textContent = 'Disponibles hors ligne ✓'; btn.textContent = 'Supprimer'; btn.dataset.state = 'done'; }
-    else { info.textContent = (hits ? `${hits}/${DATA.parts.length} séance · ` : '') + '31 Mo · pour écouter sans réseau'; btn.textContent = 'Télécharger'; btn.dataset.state = 'none'; }
+    const all = audioUrls().length;
+    if (hits === all){ info.textContent = 'Disponibles hors ligne ✓'; btn.textContent = 'Supprimer'; btn.dataset.state = 'done'; }
+    else { info.textContent = (hits ? `${hits}/${all} · ` : '') + '50 Mo · cours et textes lus, sans réseau'; btn.textContent = 'Télécharger'; btn.dataset.state = 'none'; }
   }catch(e){ row.hidden = true; }
 }
 async function downloadAudios(){
@@ -837,7 +878,7 @@ async function downloadAudios(){
     const urls = audioUrls();
     const sizes = []; let total = 0, done = 0;
     for (const u of urls){ try{ const h = await fetch(u, { method: 'HEAD', cache: 'no-store' }); const n = +h.headers.get('content-length') || 0; sizes.push(n); total += n; }catch(e){ sizes.push(0); } }
-    if (!total) total = 31.6e6;
+    if (!total) total = 49.8e6;
     for (const u of urls){
       if (await c.match(u)) { done += sizes[urls.indexOf(u)]; continue; }
       const res = await fetch(u, { cache: 'no-store' });
@@ -896,21 +937,28 @@ function renderTextes(){
   let html = `<div class="intro">${T.intro}<span class="src">${esc(T.source)}</span></div>`;
   html += `<div class="h-section">Corrigé de la fiche</div>`;
   T.corrige.forEach((c, i) => html += secHTML(c.title, c.html, false, i+1));
-  html += `<div class="h-section">Le texte</div><article class="text">`;
+  html += `<div class="h-section">Le texte</div>`;
+  if (T.audio) html += `<button class="listen-cta read-cta">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></span>
+      <span><b>Écouter le texte</b><span>Lu par une voix de synthèse · ${Math.round(T.duration / 60)} min</span></span></button>`;
+  html += `<article class="text${T.audio ? ' has-audio' : ''}">`;
   T.paras.forEach(p => {
     if (T.parts && T.parts[p.n]) html += `<div class="chapter">${esc(T.parts[p.n])}</div>`;
     const cls = p.who ? (p.who==='Les Lois' ? 'lois' : p.who.toLowerCase()) : '';
-    html += `<div class="tp ${cls}" id="t${textIdx}-${p.n}"><span class="n">${p.n}</span><div>${p.who ? `<span class="who">${esc(p.who)}</span>` : ''}${esc(p.text)}</div></div>`;
+    const body = p.sents ? p.sents.map(([t, x]) => `<span class="ln" data-t="${t}">${esc(x)}</span>`).join(' ') : esc(p.text);
+    html += `<div class="tp ${cls}" id="t${textIdx}-${p.n}"><span class="n"${p.sents ? ` role="button" aria-label="Écouter à partir du paragraphe ${p.n}"` : ''}>${p.n}</span><div>${p.who ? `<span class="who">${esc(p.who)}</span>` : ''}${body}</div></div>`;
   });
   html += `</article>`;
   $('#textes').innerHTML = html;
   bindSecs($('#textes'));
+  if (typeof indexSegs === 'function' && typeof srcKey !== 'undefined'){ indexSegs(); updateCtas(); }
 }
 function setText(i){
   textIdx = i; store.set('text', i);
   $$('[data-text]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.text===i));
   $('#segThumb2').style.transform = `translateX(${i*100}%)`;
   renderTextes();
+  if (srcKey && srcKey[0] === 't') loadSource('t' + i);
 }
 $$('[data-text]').forEach(b => b.addEventListener('click', () => {
   if (+b.dataset.text===textIdx) return; haptic(5); setText(+b.dataset.text);

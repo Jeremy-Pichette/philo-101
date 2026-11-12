@@ -32,7 +32,20 @@ for i,f in enumerate(content['files']):
         p['segs']=[[t,clean(x)] for t,x in p['segs']]
         del p['text']
     parts.append({'title':content['partTitles'][i],'duration':durs[i],'audio':'audio/seance%d.m4a'%(i+1),'paragraphs':paras})
-data={'parts':parts,'texts':content['texts'],'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
+# Lecture des textes (synthèse vocale) : audio + instant de chaque phrase
+import os
+texts=content['texts']
+tim=json.load(open('textes-timing.json')) if os.path.exists('textes-timing.json') else {}
+for t,(key,short) in zip(texts,[('apologie','Apologie'),('criton','Criton')]):
+    t['short']=short
+    if key in tim:
+        t['audio']='audio/texte-%s.m4a'%key; t['duration']=tim[key]['duration']
+        by={x['n']:x['sents'] for x in tim[key]['paras']}
+        for para in t['paras']:
+            if para['n'] in by:
+                assert ' '.join(x for _,x in by[para['n']])==para['text'], para['n']
+                para['sents']=by[para['n']]
+data={'parts':parts,'texts':texts,'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
 html=open('template.html').read().replace('/*DATA*/null',json.dumps(data,ensure_ascii=False).replace('</','<\\/'))
 open(out,'w').write(html)
 print(out, len(html)//1024,'KB', [len(p['paragraphs']) for p in parts])

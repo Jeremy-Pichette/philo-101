@@ -19,7 +19,7 @@ Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d
 ### Socrate
 
 - **Cours** : transcription intégrale des deux séances, par chapitres, avec recherche
-- **Écoute + paroles en direct** : lecteur audio intégré ; la phrase en cours s’illumine et le texte défile avec la voix (touchez une phrase ou un horodatage pour y sauter, vitesse 0,75× à 2×, contrôles sur l’écran verrouillé)
+- **Écoute + paroles en direct** : lecteur audio intégré ; surlignage **mot à mot** (comme Apple Music, avec une lueur sur le mot en cours) ou par phrase, au choix dans Réglages ; le texte défile avec la voix (touchez une phrase ou un horodatage pour y sauter, vitesse 0,75× à 2×, contrôles sur l’écran verrouillé)
 - **Textes** : *Apologie* (§ 1-8) et *Criton* (§ 1-101) + corrigé des deux fiches d’activité
 - **Textes lus à voix haute** : voix de synthèse pré-enregistrées, la phrase lue s’illumine ; toucher un numéro de § ou une phrase pour y sauter. *Criton* : deux voix expressives Gemini TTS (Socrate « Charon », Criton « Fenrir ») avec un jeu adapté à chaque réplique ; *Apologie* : voix Piper « Tom » (passage à Gemini en cours)
 - **L’essentiel** : les 23 diapositives du cours (vignettes + visionneuse plein écran, PDF), synthèse en 8 sections et lexique
@@ -46,6 +46,7 @@ philo-101/
     ├── lire_textes.py         # synthèse vocale des textes (Piper) + instant de chaque phrase
     ├── gen_gemini.py          # lecture expressive avec Gemini TTS (consignes de jeu par réplique)
     ├── align_gemini.py        # recalage des phrases sur l’audio Gemini (faster-whisper)
+    ├── word_align.py          # horodatage mot à mot des 4 audios (words.json)
     ├── gemini.py              # appel à l’API Gemini TTS (clé fournie par l’environnement, jamais dans le dépôt)
     ├── extraire_textes.py     # extraction des textes depuis les PDF
     ├── fixes.json             # corrections des noms propres mal reconnus

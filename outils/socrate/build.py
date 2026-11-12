@@ -46,6 +46,18 @@ for t,(key,short) in zip(texts,[('apologie','Apologie'),('criton','Criton')]):
                 assert ' '.join(x for _,x in by[para['n']])==para['text'], para['n']
                 para['sents']=by[para['n']]
 slides=json.load(open('diapos.json')) if os.path.exists('diapos.json') else []
+# Mot à mot : instant de chaque mot (centisecondes depuis le début de sa phrase), si disponible et cohérent
+if os.path.exists('words.json'):
+    W = json.load(open('words.json'))
+    def attach(key, sents):
+        ws = W.get(key)
+        if not ws or len(ws) != len(sents): print('mots ignorés pour', key); return
+        ok = 0
+        for s, w in zip(sents, ws):
+            if len(w) == len(s[1].split(' ')): s.append(w); ok += 1
+        print('mots', key, ok, '/', len(sents))
+    for i, p in enumerate(parts): attach('c%d' % i, [s for para in p['paragraphs'] for s in para['segs']])
+    for i, t in enumerate(texts): attach('t%d' % i, [s for para in t['paras'] for s in para.get('sents', [])])
 data={'parts':parts,'texts':texts,'slides':slides,'essentiel':content['essentiel'],'cards':content['cards'],'quiz':content['quiz']}
 html=open('template.html').read().replace('/*DATA*/null',json.dumps(data,ensure_ascii=False).replace('</','<\\/'))
 open(out,'w').write(html)

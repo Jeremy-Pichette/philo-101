@@ -34,7 +34,7 @@
   --bg:#f6f1e9; --bg-2:#efe8dc; --card:#fffdf9; --ink:#1d1a16; --ink-2:#5d564c; --ink-3:#8c8478;
   --line:rgba(60,45,25,.12); --accent:#b4532a; --accent-ink:#fff; --accent-soft:rgba(180,83,42,.12);
   --good:#2f7d4f; --good-soft:rgba(47,125,79,.13); --bad:#b23a3a; --bad-soft:rgba(178,58,58,.12);
-  --mark:rgba(232,170,60,.42); --mark-cur:rgba(232,140,30,.85);
+  --mark:rgba(232,170,60,.42); --mark-cur:rgba(232,140,30,.85); --glow:rgba(194,95,51,.45);
   --glass:rgba(246,241,233,.9); --glass-line:rgba(255,255,255,.55);
   --shadow:0 1px 2px rgba(40,30,15,.06),0 8px 24px rgba(40,30,15,.08);
   --shadow-lg:0 2px 6px rgba(40,30,15,.08),0 24px 60px rgba(40,30,15,.16);
@@ -49,7 +49,7 @@
     --bg:#14110e; --bg-2:#1c1814; --card:#211d18; --ink:#f1ebe2; --ink-2:#b9b0a3; --ink-3:#857c70;
     --line:rgba(255,240,220,.1); --accent:#e0794a; --accent-ink:#1a0f08; --accent-soft:rgba(224,121,74,.16);
     --good:#5fbf86; --good-soft:rgba(95,191,134,.15); --bad:#e46b6b; --bad-soft:rgba(228,107,107,.15);
-    --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8);
+    --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8); --glow:rgba(240,140,90,.75);
     --glass:rgba(20,17,14,.9); --glass-line:rgba(255,255,255,.07);
     --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
     --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 24px 60px rgba(0,0,0,.5);
@@ -59,7 +59,7 @@
   --bg:#14110e; --bg-2:#1c1814; --card:#211d18; --ink:#f1ebe2; --ink-2:#b9b0a3; --ink-3:#857c70;
   --line:rgba(255,240,220,.1); --accent:#e0794a; --accent-ink:#1a0f08; --accent-soft:rgba(224,121,74,.16);
   --good:#5fbf86; --good-soft:rgba(95,191,134,.15); --bad:#e46b6b; --bad-soft:rgba(228,107,107,.15);
-  --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8);
+  --mark:rgba(232,170,60,.32); --mark-cur:rgba(232,150,40,.8); --glow:rgba(240,140,90,.75);
   --glass:rgba(20,17,14,.9); --glass-line:rgba(255,255,255,.07);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
   --shadow-lg:0 2px 6px rgba(0,0,0,.35),0 24px 60px rgba(0,0,0,.5);
@@ -333,6 +333,15 @@ body.audio-on .ln:active{background:var(--accent-soft)}
 .lyrics-on .ln.now{color:var(--ink)}
 .lyrics-on .ln.past{color:var(--ink-2)}
 .lyrics-on .ts{opacity:.55}
+/* Mot à mot (Apple Music) : les mots à venir de la phrase en cours restent atténués, ceux déjà dits s'éclairent.
+   Seule la couleur change (120 ms) : pas d'échelle, de lueur ni de déplacement. */
+.lyrics-on .ln.now .w{color:var(--ink-3);transition:color .12s linear}
+.lyrics-on .ln.now .w.sung,.lyrics-on .ln.now .w.cur{color:var(--ink)}
+/* Lueur douce sur le mot en cours : peinte sur un seul mot, sans échelle ni mouvement */
+.lyrics-on .ln.now .w{transition:color .12s linear,text-shadow .12s linear}
+.lyrics-on .ln.now .w.cur{text-shadow:0 0 1px var(--glow),0 0 10px var(--glow),0 0 18px var(--glow)}
+@media (prefers-contrast:more){.lyrics-on .ln.now .w.cur{text-shadow:none;text-decoration:underline 2px var(--accent);text-underline-offset:4px}}
+@media (forced-colors:active){.lyrics-on .ln.now .w.cur{text-shadow:none;text-decoration:underline 2px}}
 .lyrics-on .who{opacity:.7}
 .has-audio .tp .n{position:relative;cursor:pointer;border-radius:6px;transition:background-color .15s ease,color .15s ease}
 .has-audio .tp .n:active{background:var(--accent-soft)}
@@ -374,7 +383,7 @@ body.has-player #view-cours{padding-bottom:96px}
 .listen-cta .ic svg{width:16px;height:16px}
 .listen-cta b{display:block;font-size:15px;color:var(--ink)}
 .listen-cta span{font-size:13px;color:var(--ink-3)}
-@media (prefers-reduced-motion:reduce){.ln{transition:none}.player{transition:opacity .2s ease}::view-transition-old(root),::view-transition-new(root){animation:none}}
+@media (prefers-reduced-motion:reduce){.ln,.w{transition:none}.player{transition:opacity .2s ease}::view-transition-old(root),::view-transition-new(root){animation:none}}
 
 /* ---------- Toast ---------- */
 .toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 110px);z-index:60;transform:translate(-50%,16px);opacity:0;
@@ -527,6 +536,8 @@ body.has-player #view-cours{padding-bottom:96px}
     </div></div>
   <div class="row"><label>Horodatages</label>
     <div class="chips" id="tsChips"><button class="chip" data-ts="on">Afficher</button><button class="chip" data-ts="off">Masquer</button></div></div>
+  <div class="row"><label>Paroles en direct<small>Surlignage pendant l’écoute</small></label>
+    <div class="chips" id="lyrChips"><button class="chip" data-lyr="word">Mot à mot</button><button class="chip" data-lyr="line">Par phrase</button></div></div>
   <div class="row" id="offlineRow" hidden><label>Audios hors ligne<small id="offlineInfo">50 Mo · cours et textes lus, sans réseau</small></label><button class="chip" id="offlineBtn">Télécharger</button></div>
   <div class="row" id="installRow" hidden><label>Installer Philo 101<small id="installInfo">L’app complète sur l’écran d’accueil</small></label><button class="chip" id="installBtn">Installer</button></div>
   <div class="row"><label>Progression</label><button class="chip" id="resetAll">Réinitialiser</button></div>
@@ -714,12 +725,14 @@ const posKey = k => k[0] === 'c' ? k[1] : k;   // les séances gardent leurs anc
 
 function indexSegs(){
   $$('.lyrics-on').forEach(e => e.classList.remove('lyrics-on'));
+  unwrapWords();
   $$('.ln.now, .ln.past').forEach(e => e.classList.remove('now', 'past'));
   segIndex = []; curSeg = null;
   if (!srcKey) return;
   const s = info(srcKey);
   if (!s.root || !s.shown()) return;
-  segIndex = $$('.ln', s.root).map(el => ({ t: +el.dataset.t, el }));
+  const sents = srcKey[0] === 'c' ? DATA.parts[s.i].paragraphs.flatMap(p => p.segs) : DATA.texts[s.i].paras.flatMap(p => p.sents || []);
+  segIndex = $$('.ln', s.root).map((el, k) => ({ t: +el.dataset.t, el, w: sents[k] && sents[k][2] }));
   if (audioStarted) { s.root.classList.toggle('lyrics-on', lyricsOn); syncLyrics(true); }
 }
 function segAt(t){
@@ -793,8 +806,9 @@ function syncLyrics(force){
   if (curSeg) curSeg.el.classList.remove('now');
   $$('.ln.past').forEach(e => e.classList.remove('past'));
   curSeg = s;
-  if (!s) return;
+  if (!s) { unwrapWords(); return; }
   s.el.classList.add('now');
+  wrapWords(s);
   let prev = s.el.previousElementSibling; while (prev && prev.classList.contains('ln')){ prev.classList.add('past'); prev = prev.previousElementSibling; }
   if (lyricsOn && !audio.paused && current === info(srcKey).view) follow(s.el, force);
 }
@@ -816,11 +830,45 @@ function userScrolled(){
 ['touchmove','wheel'].forEach(ev => addEventListener(ev, () => { if (performance.now() > autoScrolling) userScrolled(); }, {passive:true}));
 $('#follow').onclick = () => { followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg) follow(curSeg.el, true); haptic(5); };
 setInterval(() => { if (followPausedUntil && performance.now() > followPausedUntil){ followPausedUntil = 0; $('#follow').classList.remove('show'); if (curSeg && !audio.paused && lyricsOn) follow(curSeg.el, true); } }, 1000);
-function loop(){ updateTime(); syncLyrics(false); rafId = requestAnimationFrame(loop); }
+function loop(){ updateTime(); syncLyrics(false); syncWords(false); rafId = requestAnimationFrame(loop); }
+
+/* Mot à mot : seule la phrase en cours est découpée en mots (une vingtaine d'éléments au plus) ;
+   elle redevient du texte simple dès qu'on la quitte. Le défilement suit la phrase, jamais le mot. */
+let wordState = null;
+const lyrMode = () => store.get('lyricsMode', 'word');
+function unwrapWords(){ if (!wordState) return; wordState.el.textContent = wordState.text; wordState = null; }
+function wrapWords(seg){
+  unwrapWords();
+  if (!seg || !seg.w || !lyricsOn || lyrMode() !== 'word' || !audioStarted) return;
+  const el = seg.el; if (el.querySelector('mark')) return;          // une recherche est surlignée : on garde la phrase entière
+  const text = el.textContent, toks = text.split(' ');
+  if (toks.length !== seg.w.length) return;
+  el.innerHTML = toks.map(t => `<span class="w">${esc(t)}</span>`).join(' ');
+  wordState = { el, text, spans: $$('.w', el), times: seg.w.map(o => seg.t + o / 100), k: -2 };
+  syncWords(true);
+}
+function syncWords(force){
+  const ws = wordState; if (!ws) return;
+  const t = (audio.currentTime || 0) + 0.04;
+  let k = -1; while (k + 1 < ws.times.length && ws.times[k + 1] <= t) k++;
+  if (k === ws.k && !force) return;
+  // en avant : on ne touche qu'aux mots entre l'ancien et le nouveau ; après un saut en arrière : toute la phrase
+  const all = force || k < ws.k;
+  const lo = all ? 0 : Math.max(0, ws.k), hi = all ? ws.spans.length - 1 : k;
+  for (let i = lo; i <= hi; i++){ ws.spans[i].classList.toggle('sung', i < k); ws.spans[i].classList.toggle('cur', i === k); }
+  ws.k = k;
+}
+function setLyrMode(m){
+  store.set('lyricsMode', m);
+  $$('#lyrChips .chip').forEach(b => b.setAttribute('aria-pressed', b.dataset.lyr === m));
+  if (curSeg) { if (m === 'word') wrapWords(curSeg); else unwrapWords(); }
+}
+$$('#lyrChips .chip').forEach(b => b.onclick = () => { setLyrMode(b.dataset.lyr); haptic(4); });
+setLyrMode(lyrMode());
 audio.addEventListener('play', () => { setIcon(); cancelAnimationFrame(rafId); rafId = requestAnimationFrame(loop); indexSegs(); });
 audio.addEventListener('pause', () => { setIcon(); cancelAnimationFrame(rafId); updateTime(); savePos(); $('#follow').classList.remove('show'); });
 audio.addEventListener('ended', () => { setIcon(); savePos(); });
-audio.addEventListener('timeupdate', () => { if (audio.paused){ updateTime(); syncLyrics(false); } if (Math.floor(audio.currentTime) % 5 === 0) savePos(); });
+audio.addEventListener('timeupdate', () => { if (audio.paused){ updateTime(); syncLyrics(false); syncWords(false); } if (Math.floor(audio.currentTime) % 5 === 0) savePos(); });
 audio.addEventListener('progress', updateTime);
 
 $('#listenCta').onclick = () => { haptic(6); startAudio('c' + part); };
@@ -829,7 +877,7 @@ $('#pBack').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime 
 $('#pFwd').onclick = () => { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 15); haptic(4); syncLyrics(true); };
 function setSpeed(r){ audio.playbackRate = r; store.set('speed', r); $('#pSpeed').textContent = (r+'').replace('.', ',') + '×'; }
 $('#pSpeed').onclick = () => { const i = speeds.indexOf(audio.playbackRate); setSpeed(speeds[(i+1) % speeds.length]); haptic(4); };
-function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); indexSegs(); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
+function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); unwrapWords(); indexSegs(); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
 $('#pLyrics').onclick = () => { setLyrics(!lyricsOn); haptic(4); toast(lyricsOn ? 'Paroles en direct activées' : 'Paroles en direct désactivées'); };
 
 // Toucher une phrase (source active) ou un repère (horodatage, numéro de §) pour y sauter

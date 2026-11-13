@@ -49,6 +49,7 @@ philo-101/
     ├── gen_gemini.py          # lecture expressive avec Gemini TTS (consignes de jeu par réplique)
     ├── align_gemini.py        # recalage des phrases sur l’audio Gemini (faster-whisper)
     ├── word_align.py          # horodatage mot à mot des 4 audios (words.json)
+    ├── stabiliser_voix.py     # stabilise la hauteur de chaque voix d’une réplique à l’autre (parselmouth + rubberband)
     ├── gemini.py              # appel à l’API Gemini TTS (clé fournie par l’environnement, jamais dans le dépôt)
     ├── extraire_textes.py     # extraction des textes depuis les PDF
     ├── fixes.json             # corrections des noms propres mal reconnus

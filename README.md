@@ -23,7 +23,7 @@ Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d
 - **Lecteur plein écran** (toucher le mini-lecteur) : chapitres (liste + repères sur la barre), minuterie de sommeil (5 min à 1 h ou fin du chapitre), signets horodatés, partage d’un moment (lien qui rouvre l’app à la seconde près), « À suivre » avec lecture continue, temps restant, AirPlay, −15 s / +30 s, retour intelligent de 3 s après une longue pause, flèches du clavier
 - **Accueil** : carte « Reprendre l’écoute » à l’endroit exact
 - **Textes** : *Apologie* (§ 1-8) et *Criton* (§ 1-101) + corrigé des deux fiches d’activité
-- **Textes lus à voix haute** : voix de synthèse pré-enregistrées, la phrase lue s’illumine ; toucher un numéro de § ou une phrase pour y sauter. *Criton* : deux voix expressives Gemini TTS (Socrate « Charon », Criton « Fenrir ») avec un jeu adapté à chaque réplique ; *Apologie* : voix Piper « Tom » (passage à Gemini en cours)
+- **Textes lus à voix haute** : voix de synthèse pré-enregistrées, la phrase lue s’illumine ; toucher un numéro de § ou une phrase pour y sauter. voix expressives Gemini TTS avec un jeu adapté à chaque réplique : *Criton* à deux voix (Socrate « Charon », Criton « Fenrir »), *Apologie* par la voix de Socrate
 - **L’essentiel** : les 23 diapositives du cours (vignettes + visionneuse plein écran, PDF), synthèse en 8 sections et lexique
 - **Fiches** : 34 cartes (glisser → je savais / ← à revoir)
 - **Quiz** : 20 questions avec explications

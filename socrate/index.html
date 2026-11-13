@@ -385,6 +385,71 @@ body.has-player #view-cours{padding-bottom:96px}
 .listen-cta span{font-size:13px;color:var(--ink-3)}
 @media (prefers-reduced-motion:reduce){.ln,.w{transition:none}.player{transition:opacity .2s ease}::view-transition-old(root),::view-transition-new(root){animation:none}}
 
+/* ---------- Lecteur plein écran « Lecture en cours » ---------- */
+.p-mid{text-align:left;cursor:pointer;border-radius:10px}
+.p-mid:active{background:var(--line)}
+.p-mid .p-title{display:flex;align-items:center;gap:4px;min-width:0}
+#pTitle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:360px){.p-mid .p-title{display:none}}
+.p-title svg{width:12px;height:12px;flex:none;color:var(--ink-3)}
+.np-scrim{position:fixed;inset:0;z-index:54;background:rgba(0,0,0,.36);opacity:0;pointer-events:none;transition:opacity .3s ease}
+.np-scrim.show{opacity:1;pointer-events:auto}
+.np{position:fixed;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:55;max-width:640px;margin:0 auto;background:var(--card);
+  border-radius:22px 22px 0 0;box-shadow:var(--shadow-lg);transform:translateY(105%);will-change:transform;display:flex;flex-direction:column}
+.np[hidden]{display:none}
+.np-drag{touch-action:none;cursor:grab;flex:none;padding:8px 20px 0}
+.np-headrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.np-close{width:44px;height:36px;border-radius:12px;display:grid;place-items:center;color:var(--ink-2)}
+.np-close:active{background:var(--line)}
+.np-close svg{width:24px;height:24px}
+.np-top{display:flex;align-items:center;gap:14px;padding-bottom:6px}
+.np-art{flex:none;width:64px;height:64px;border-radius:14px;background:linear-gradient(#c25f33,#a24a24);color:#f6f1e9;display:grid;place-items:center;font-family:var(--serif);font-size:36px;box-shadow:var(--shadow)}
+.np-title{font-family:var(--serif);font-size:22px;line-height:1.15;letter-spacing:-.01em;font-weight:700}
+.np-chapter{font-size:14px;color:var(--accent);font-weight:600;margin-top:2px;min-height:1.3em}
+.np-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 20px calc(env(safe-area-inset-bottom,0px) + 24px);touch-action:pan-y}
+.np-bar{position:relative;height:30px;margin:4px 0 0;touch-action:none;cursor:pointer}
+.np-bar::before{content:"";position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:var(--line)}
+.np-fill{position:absolute;left:0;top:12px;height:6px;width:100%;border-radius:3px;background:var(--accent);transform-origin:0 0;transform:scaleX(0)}
+.np-knob{position:absolute;top:6px;left:0;width:18px;height:18px;margin-left:-9px;border-radius:9px;background:var(--accent);box-shadow:0 1px 5px rgba(0,0,0,.25);transition:transform .15s var(--ease-out)}
+.np-bar.drag .np-knob{transform:scale(1.3)}
+.np-tick{position:absolute;top:10px;width:2px;height:10px;margin-left:-1px;border-radius:1px;background:var(--card);opacity:.9}
+.np-times{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-bottom:6px}
+.np-times button,.np-times span{color:var(--ink-3);font-size:13px;padding:8px 0;min-height:36px}
+.np-times button{padding-left:16px}
+.np-ctrl{display:flex;align-items:center;justify-content:center;gap:28px;margin:4px 0 14px}
+.np-skip{width:56px;height:56px;border-radius:28px;display:grid;place-items:center;color:var(--ink);transition:transform .12s var(--ease-out),background-color .15s}
+.np-skip:active{transform:scale(.9);background:var(--line)}
+.np-skip svg{width:34px;height:34px}
+.np-play{width:76px;height:76px;border-radius:38px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--shadow);transition:transform .12s var(--ease-out)}
+.np-play:active{transform:scale(.94)}
+.np-play svg{width:34px;height:34px}
+.np-tools{display:flex;justify-content:space-around;gap:4px;margin-bottom:14px}
+.np-tool{flex:1;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px;border-radius:12px;font-size:11.5px;font-weight:600;color:var(--ink-2);min-height:56px;transition:background-color .15s}
+.np-tool:active{background:var(--line)}
+.np-tool svg{width:22px;height:22px}
+.np-tool[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+.np-tool[hidden]{display:none}
+.np-panel{background:var(--bg-2);border-radius:14px;padding:10px;margin:-6px 0 14px}
+.np-panel[hidden]{display:none}
+.np-panel p{margin:0 0 8px;font-size:13px;color:var(--ink-3)}
+.np-tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);margin-bottom:6px}
+.np-tabs button{padding:10px 0;font-size:14px;font-weight:650;color:var(--ink-3);border-bottom:2px solid transparent;margin-bottom:-1px}
+.np-tabs button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.np-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 4px;border-bottom:1px solid var(--line);min-height:48px;transition:background-color .15s}
+.np-item:active{background:var(--bg-2)}
+.np-item .t{flex:none;min-width:48px;font-size:12.5px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.np-item .x{flex:1;min-width:0;font-size:15px;line-height:1.35}
+.np-item .x small{display:block;color:var(--ink-3);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.np-item.on .x{font-weight:650}
+.np-item.on .t::before{content:"▶ "}
+.np-del{flex:none;width:36px;height:36px;border-radius:18px;color:var(--ink-3);font-size:20px}
+.np-del:active{background:var(--line)}
+.np-prog{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}
+.np-prog i{display:block;height:100%;background:var(--accent);transform-origin:0 0}
+.np-empty{color:var(--ink-3);font-size:14px;padding:16px 4px;text-align:center}
+.np-switch{display:flex;align-items:center;justify-content:space-between;padding:8px 4px 10px;font-size:14px;color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.np-scrim{transition:opacity .15s ease}}
+
 /* ---------- Toast ---------- */
 .toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + env(safe-area-inset-bottom,0px) + 110px);z-index:60;transform:translate(-50%,16px);opacity:0;
   background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);transition:opacity .2s ease,transform .3s var(--ease-out);pointer-events:none;white-space:nowrap}
@@ -506,17 +571,47 @@ body.has-player #view-cours{padding-bottom:96px}
 <div class="player" id="player" hidden role="region" aria-label="Lecteur audio">
   <div class="p-row">
     <button class="p-play" id="pPlay" aria-label="Lecture"><svg id="pIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></button>
-    <div class="p-mid"><div class="p-title" id="pTitle">Séance 1</div><div class="p-time"><span id="pCur">0:00</span><span class="p-dur"> / <span id="pDur">0:00</span></span></div></div>
+    <button class="p-mid" id="pOpen" aria-label="Ouvrir le lecteur en plein écran"><span class="p-title"><span id="pTitle">Séance 1</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></span><span class="p-time" style="display:block"><span id="pCur">0:00</span><span class="p-dur"> / <span id="pDur">0:00</span></span></span></button>
     <button class="p-btn" id="pBack" aria-label="Reculer de 15 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/><text x="12" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">15</text></svg></button>
-    <button class="p-btn" id="pFwd" aria-label="Avancer de 15 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/><text x="12" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">15</text></svg></button>
+    <button class="p-btn" id="pFwd" aria-label="Avancer de 30 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/><text x="12" y="15.5" font-size="7.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">30</text></svg></button>
     <button class="p-speed" id="pSpeed" aria-label="Vitesse de lecture">1×</button>
     <button class="p-btn p-lyrics" id="pLyrics" aria-pressed="true" aria-label="Paroles en direct"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 10.5h8M4 15h6"/><circle cx="17" cy="16" r="2.5"/><path d="M19.5 16V7.5l-3 1"/></svg></button>
   </div>
   <div class="p-bar" id="pBar" role="slider" aria-label="Position" aria-valuemin="0" tabindex="0"><div class="p-buffer" id="pBuf"></div><div class="p-fill" id="pFill"></div><div class="p-knob" id="pKnob"></div></div>
 </div>
 <button class="follow" id="follow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>Revenir à la lecture</button>
-<audio id="audio" preload="metadata" playsinline></audio>
+<audio id="audio" preload="metadata" playsinline x-webkit-airplay="allow"></audio>
 
+<div class="np-scrim" id="npScrim"></div>
+<div class="np" id="np" hidden role="dialog" aria-modal="true" aria-label="Lecture en cours">
+  <div class="np-drag">
+    <div class="grabber"></div>
+    <div class="np-headrow"><button class="np-close" id="npClose" aria-label="Réduire le lecteur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <span style="font-size:13px;font-weight:650;color:var(--ink-3)">Lecture en cours</span><span style="width:44px"></span></div>
+    <div class="np-top"><div class="np-art" aria-hidden="true">Σ</div><div style="min-width:0"><div class="np-title" id="npTitle"></div><div class="np-chapter" id="npChapter"></div></div></div>
+  </div>
+  <div class="np-body">
+    <div class="np-bar" id="npBar" role="slider" aria-label="Position" tabindex="0"><div class="np-fill" id="npFill"></div><div id="npTicks"></div><div class="np-knob" id="npKnob"></div></div>
+    <div class="np-times"><span id="npCur">0:00</span><button id="npRem" aria-label="Afficher le temps restant ou la durée">0:00</button></div>
+    <div class="np-ctrl">
+      <button class="np-skip" id="npBack" aria-label="Reculer de 15 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/><text x="12" y="15.5" font-size="7" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">15</text></svg></button>
+      <button class="np-play" id="npPlay" aria-label="Lecture"><svg id="npIcon" viewBox="0 0 24 24" fill="currentColor"></svg></button>
+      <button class="np-skip" id="npFwd" aria-label="Avancer de 30 secondes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v4.5h-4.5"/><text x="12" y="15.5" font-size="7" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">30</text></svg></button>
+    </div>
+    <div class="np-tools">
+      <button class="np-tool" id="npSpeed" aria-label="Vitesse de lecture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a9 9 0 1 0 9 9"/><path d="m12 13 5-5"/></svg><span id="npSpeedTxt">1×</span></button>
+      <button class="np-tool" id="npSleep" aria-pressed="false" aria-label="Minuterie de sommeil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span id="npSleepTxt">Minuterie</span></button>
+      <button class="np-tool" id="npMark" aria-label="Ajouter un signet ici"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h12v17l-6-4-6 4z"/></svg><span>Signet</span></button>
+      <button class="np-tool" id="npShare" aria-label="Partager ce moment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/></svg><span>Partager</span></button>
+      <button class="np-tool" id="npAir" hidden aria-label="AirPlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H4a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 4 4h16a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 20 17h-1"/><path d="m12 15 5 6H7z"/></svg><span>AirPlay</span></button>
+    </div>
+    <div class="np-panel" id="npSleepPanel" hidden><p>Mettre en pause dans…</p><div class="chips" style="flex-wrap:wrap">
+      <button class="chip" data-sleep="0">Désactivée</button><button class="chip" data-sleep="5">5 min</button><button class="chip" data-sleep="15">15 min</button>
+      <button class="chip" data-sleep="30">30 min</button><button class="chip" data-sleep="45">45 min</button><button class="chip" data-sleep="60">1 h</button><button class="chip" data-sleep="chapter">Fin du chapitre</button></div></div>
+    <div class="np-tabs" role="group" aria-label="Listes"><button data-tab="chap" aria-pressed="true">Chapitres</button><button data-tab="marks" aria-pressed="false">Signets</button><button data-tab="queue" aria-pressed="false">À suivre</button></div>
+    <div id="npList"></div>
+  </div>
+</div>
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Diapositives du cours">
   <div class="v-bar">
     <button class="v-btn" id="vClose">Fermer</button>
@@ -874,7 +969,7 @@ audio.addEventListener('progress', updateTime);
 $('#listenCta').onclick = () => { haptic(6); startAudio('c' + part); };
 $('#pPlay').onclick = () => { haptic(5); if (audio.paused){ followPausedUntil = 0; audio.play().catch(onAudioError); } else audio.pause(); };
 $('#pBack').onclick = () => { audio.currentTime = Math.max(0, audio.currentTime - 15); haptic(4); syncLyrics(true); };
-$('#pFwd').onclick = () => { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 15); haptic(4); syncLyrics(true); };
+$('#pFwd').onclick = () => { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 30); haptic(4); syncLyrics(true); };
 function setSpeed(r){ audio.playbackRate = r; store.set('speed', r); $('#pSpeed').textContent = (r+'').replace('.', ',') + '×'; }
 $('#pSpeed').onclick = () => { const i = speeds.indexOf(audio.playbackRate); setSpeed(speeds[(i+1) % speeds.length]); haptic(4); };
 function setLyrics(on){ lyricsOn = on; store.set('lyrics', on); $('#pLyrics').setAttribute('aria-pressed', on); unwrapWords(); indexSegs(); if (on && curSeg){ followPausedUntil = 0; follow(curSeg.el, true); } else $('#follow').classList.remove('show'); }
@@ -933,6 +1028,212 @@ function setMediaSession(){
 }
 addEventListener('pagehide', savePos);
 addEventListener('keydown', e => { if (e.code === 'Space' && (current === 'cours' || current === 'textes') && audioStarted && document.activeElement.tagName !== 'INPUT'){ e.preventDefault(); $('#pPlay').click(); } });
+
+/* ---------- Fonctions de lecteur de podcast ---------- */
+const np = $('#np'), npScrim = $('#npScrim');
+const ORDER = ['c0', 'c1', 't0', 't1'];
+let npOpen = false, npAnim = null, npY = 0, npTab = 'chap', sleepAt = 0, sleepChapter = false, pausedAt = 0, showRemain = store.get('showRemain', false), lastChap = null;
+
+/* Chapitres : chapitres du cours, parties du Criton, paragraphes de l'Apologie */
+function chaptersOf(k){
+  if (!k) return [];
+  const i = +k[1];
+  if (k[0] === 'c') return DATA.parts[i].paragraphs.filter(p => p.chapter).map(p => ({ t: p.t, title: p.chapter }));
+  const T = DATA.texts[i];
+  const first = p => p.sents && p.sents[0] ? p.sents[0][0] : null;
+  if (T.parts) return T.paras.filter(p => T.parts[p.n] && first(p) != null).map(p => ({ t: first(p), title: T.parts[p.n] }));
+  return T.paras.filter(p => first(p) != null).map(p => ({ t: first(p), title: '§ ' + p.n + ' · ' + p.sents[0][1].split(' ').slice(0, 6).join(' ') + '…' }));
+}
+function chapterAt(k, t){ const cs = chaptersOf(k); let c = null; for (const x of cs) if (x.t <= t + 0.2) c = x; return c; }
+function durOf(k){ return (srcKey === k && audio.duration) || info(k).dur; }
+
+/* Ouverture / fermeture : glisse depuis le mini-lecteur, se ferme vers le bas (même chemin) */
+const npBehind = () => [$('main'), $('.topbar'), $('.tabbar'), player];
+function npSet(y){ npY = y; np.style.transform = `translateY(${y}px)`; npScrim.style.opacity = String(Math.max(0, 1 - y / (np.offsetHeight || innerHeight))); }
+function openNP(){
+  if (!srcKey) return;
+  npOpen = true; np.hidden = false; npScrim.classList.add('show'); npScrim.style.opacity = '';
+  npBehind().forEach(e => e && (e.inert = true)); document.documentElement.style.overflow = 'hidden';
+  renderNP(true);
+  npAnim && npAnim.stop();
+  const from = npAnim ? npAnim.value : np.offsetHeight;
+  npAnim = spring({ from, to: 0, response: .38, damping: 1, onUpdate: npSet, onDone: () => npAnim = null });
+  $('#npClose').focus({ preventScroll: true });
+}
+function closeNP(v = 0){
+  if (!npOpen) return;
+  npOpen = false; npAnim && npAnim.stop();
+  npBehind().forEach(e => e && (e.inert = false)); document.documentElement.style.overflow = '';
+  npAnim = spring({ from: npY, to: np.offsetHeight + 20, velocity: v, response: .3, damping: 1, onUpdate: npSet,
+    onDone: () => { npAnim = null; np.hidden = true; npScrim.classList.remove('show'); npScrim.style.opacity = ''; } });
+  $('#pOpen').focus({ preventScroll: true });
+}
+$('#pOpen').onclick = () => { haptic(5); openNP(); };
+$('#npClose').onclick = () => { haptic(4); closeNP(); };
+npScrim.onclick = () => closeNP();
+(() => {   // glisser la poignée ou l'en-tête vers le bas pour réduire
+  const drag = $('.np-drag'); let id = null, start = 0, hist = [];
+  drag.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; id = e.pointerId; drag.setPointerCapture(id); npAnim && npAnim.stop(); npAnim = null; start = e.clientY - npY; hist = [{ y: e.clientY, t: e.timeStamp }]; });
+  drag.addEventListener('pointermove', e => { if (e.pointerId !== id) return; let y = e.clientY - start; if (y < 0) y = -rubber(-y, innerHeight); npSet(y); hist.push({ y: e.clientY, t: e.timeStamp }); if (hist.length > 6) hist.shift(); });
+  const up = e => { if (e.pointerId !== id) return; id = null; const a = hist[0], b = hist[hist.length - 1]; const v = (b.t - a.t) > 0 ? (b.y - a.y) / (b.t - a.t) * 1000 : 0;
+    if (npY + project(v, .99) > np.offsetHeight * .35) closeNP(v); else npAnim = spring({ from: npY, to: 0, velocity: v, response: .35, damping: .9, onUpdate: npSet, onDone: () => npAnim = null }); };
+  drag.addEventListener('pointerup', up); drag.addEventListener('pointercancel', up);
+})();
+
+/* Contenu */
+function renderNP(full){
+  if (!srcKey) return;
+  const s = info(srcKey), d = durOf(srcKey);
+  $('#npTitle').textContent = s.full;
+  $('#npSpeedTxt').textContent = (audio.playbackRate + '').replace('.', ',') + '×';
+  $('#npIcon').innerHTML = audio.paused ? PLAY : PAUSE; $('#npPlay').setAttribute('aria-label', audio.paused ? 'Lecture' : 'Pause');
+  if (full){
+    $('#npTicks').innerHTML = chaptersOf(srcKey).filter(c => c.t > 1).map(c => `<span class="np-tick" style="left:${(c.t / d * 100).toFixed(2)}%"></span>`).join('');
+    renderList();
+  }
+  npTime();
+}
+function npTime(){
+  if (!npOpen || !srcKey) return;
+  const d = durOf(srcKey), t = audio.currentTime || 0, p = Math.max(0, Math.min(1, t / d));
+  $('#npFill').style.transform = `scaleX(${p})`; $('#npKnob').style.left = (p * 100) + '%';
+  const sec = Math.floor(t);
+  if (sec !== npTime.sec){ npTime.sec = sec;
+    $('#npCur').textContent = fmt(t); $('#npRem').textContent = showRemain ? '−' + fmt(Math.max(0, d - t)) : fmt(d);
+    $('#npBar').setAttribute('aria-valuenow', sec); $('#npBar').setAttribute('aria-valuemax', Math.round(d)); $('#npBar').setAttribute('aria-valuetext', fmt(t) + ' sur ' + fmt(d)); }
+}
+function updateChapter(){
+  if (!srcKey) return;
+  const c = chapterAt(srcKey, audio.currentTime || 0), key = c ? c.title : '', id = srcKey + '|' + key;
+  if (id === lastChap) return;
+  const prev = lastChap, sameSource = prev && prev.split('|')[0] === srcKey; lastChap = id;
+  $('#npChapter').textContent = key;
+  if (npOpen && npTab === 'chap') $$('#npList .np-item').forEach(el => el.classList.toggle('on', el.dataset.title === key));
+  if ('mediaSession' in navigator && navigator.mediaSession.metadata) { try { navigator.mediaSession.metadata.title = info(srcKey).full + (key ? ' — ' + key : ''); } catch (e) {} }
+  if (sleepChapter && sameSource && !audio.paused) { audio.pause(); setSleep(0); toast('Minuterie : fin du chapitre, lecture en pause'); }
+}
+function renderList(){
+  const L = $('#npList');
+  $$('.np-tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === npTab));
+  if (npTab === 'chap'){
+    const cs = chaptersOf(srcKey), cur = chapterAt(srcKey, audio.currentTime || 0);
+    L.innerHTML = cs.length ? cs.map(c => `<button class="np-item${cur && cur.title === c.title ? ' on' : ''}" data-t="${c.t}" data-title="${esc(c.title)}"><span class="t">${fmt(c.t)}</span><span class="x">${esc(c.title)}</span></button>`).join('')
+      : '<div class="np-empty">Pas de chapitres pour cet audio.</div>';
+  } else if (npTab === 'marks'){
+    const ms = store.get('marks', []);
+    L.innerHTML = ms.length ? ms.map((m, i) => `<div class="np-item" style="padding-right:0"><button class="np-item" style="border:0;padding:0;min-height:0" data-k="${m.k}" data-t="${m.t}"><span class="t">${fmt(m.t)}</span><span class="x">${esc(m.label)}<small>${esc(info(m.k).full)}</small></span></button><button class="np-del" data-del="${i}" aria-label="Supprimer le signet">×</button></div>`).join('')
+      : '<div class="np-empty">Aucun signet. Touchez « Signet » pendant l’écoute pour marquer un passage à réviser.</div>';
+  } else {
+    const pos = store.get('audioPos', {});
+    L.innerHTML = `<label class="np-switch"><span>Lecture continue<br><small style="color:var(--ink-3)">Enchaîner séance 1 → 2, Apologie → Criton</small></span><button class="chip" id="npAuto" aria-pressed="${store.get('autoNext', true)}">${store.get('autoNext', true) ? 'Activée' : 'Désactivée'}</button></label>` +
+      ORDER.map(k => { const d = info(k).dur, t = (k === srcKey ? audio.currentTime : pos[posKey(k)]) || 0;
+        return `<button class="np-item${k === srcKey ? ' on' : ''}" data-k="${k}"><span class="t">${fmt(d)}</span><span class="x">${esc(info(k).full)}<small>${t > 5 ? (d - t < 15 ? 'Terminé' : 'Reste ' + fmt(d - t)) : (k[0] === 'c' ? 'Cours enregistré' : 'Texte lu')}</small><span class="np-prog"><i style="transform:scaleX(${Math.min(1, t / d).toFixed(3)})"></i></span></span></button>`; }).join('');
+  }
+}
+$$('.np-tabs button').forEach(b => b.onclick = () => { npTab = b.dataset.tab; renderList(); });
+$('#npList').addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if (del){ const ms = store.get('marks', []); ms.splice(+del.dataset.del, 1); store.set('marks', ms); renderList(); haptic(4); return; }
+  if (e.target.closest('#npAuto')){ const on = !store.get('autoNext', true); store.set('autoNext', on); renderList(); return; }
+  const it = e.target.closest('[data-t], [data-k]'); if (!it) return;
+  const k = it.dataset.k || srcKey, t = it.dataset.t != null ? +it.dataset.t : null;
+  haptic(5);
+  if (k !== srcKey){ if (k[0] === 'c') setPart(+k[1]); else setText(+k[1]); }
+  if (t == null) startAudio(k); else jumpTo(k, t);
+  renderNP(true);
+});
+
+/* Commandes */
+$('#npPlay').onclick = () => $('#pPlay').click();
+$('#npBack').onclick = () => { $('#pBack').click(); npTime(); };
+$('#npFwd').onclick = () => { $('#pFwd').click(); npTime(); };
+$('#npSpeed').onclick = () => { $('#pSpeed').click(); renderNP(false); };
+$('#npRem').onclick = () => { showRemain = !showRemain; store.set('showRemain', showRemain); npTime.sec = -1; npTime(); };
+(() => {   // barre de progression du plein écran
+  const bar = $('#npBar'); let id = null;
+  const at = x => { const r = bar.getBoundingClientRect(); return Math.max(0, Math.min(1, (x - r.left) / r.width)) * durOf(srcKey); };
+  bar.addEventListener('pointerdown', e => { id = e.pointerId; bar.setPointerCapture(id); bar.classList.add('drag'); audio.currentTime = at(e.clientX); npTime(); syncLyrics(true); });
+  bar.addEventListener('pointermove', e => { if (e.pointerId !== id) return; audio.currentTime = at(e.clientX); npTime(); });
+  const up = e => { if (e.pointerId !== id) return; id = null; bar.classList.remove('drag'); syncLyrics(true); updateChapter(); haptic(4); };
+  bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+  bar.addEventListener('keydown', e => { if (e.key === 'ArrowRight') $('#npFwd').click(); if (e.key === 'ArrowLeft') $('#npBack').click(); });
+})();
+
+/* Minuterie de sommeil (iOS ne permet pas de baisser le volume : on met simplement en pause) */
+function setSleep(v){
+  sleepChapter = v === 'chapter'; sleepAt = (!sleepChapter && +v) ? Date.now() + v * 60000 : 0;
+  const on = sleepChapter || sleepAt > 0;
+  $('#npSleep').setAttribute('aria-pressed', on);
+  $$('#npSleepPanel [data-sleep]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sleep) === String(on ? v : 0)));
+  sleepTick();
+}
+function sleepTick(){
+  $('#npSleepTxt').textContent = sleepChapter ? 'Fin chap.' : sleepAt ? fmt(Math.max(0, (sleepAt - Date.now()) / 1000)) : 'Minuterie';
+  if (sleepAt && Date.now() >= sleepAt){ if (!audio.paused){ audio.pause(); toast('Minuterie : lecture en pause'); } setSleep(0); }
+}
+setInterval(() => { if (sleepAt) sleepTick(); }, 1000);
+$('#npSleep').onclick = () => { const pnl = $('#npSleepPanel'); pnl.hidden = !pnl.hidden; haptic(4); };
+$$('#npSleepPanel [data-sleep]').forEach(b => b.onclick = () => { const v = b.dataset.sleep; setSleep(v === 'chapter' ? 'chapter' : +v); $('#npSleepPanel').hidden = true; haptic(5);
+  toast(v === '0' ? 'Minuterie désactivée' : v === 'chapter' ? 'Pause à la fin du chapitre' : `Pause dans ${v} min`); });
+
+/* Signets */
+$('#npMark').onclick = () => {
+  if (!srcKey) return;
+  const t = Math.max(0, (audio.currentTime || 0) - 2);
+  const label = curSeg ? curSeg.el.textContent.trim().split(' ').slice(0, 12).join(' ') + '…' : (chapterAt(srcKey, t) || {}).title || 'Signet';
+  const ms = store.get('marks', []); ms.push({ k: srcKey, t, label }); ms.sort((a, b) => ORDER.indexOf(a.k) - ORDER.indexOf(b.k) || a.t - b.t);
+  store.set('marks', ms); haptic(10); toast('Signet ajouté à ' + fmt(t));
+  if (npTab === 'marks') renderList();
+};
+
+/* Partager un moment : lien qui rouvre l'app à la seconde près */
+$('#npShare').onclick = async () => {
+  if (!srcKey) return;
+  const t = Math.floor(audio.currentTime || 0);
+  const url = new URL(location.href); url.search = ''; url.hash = ''; url.searchParams.set('ecoute', srcKey); url.searchParams.set('t', t);
+  const text = `${info(srcKey).full} à ${fmt(t)}`;
+  try {
+    if (navigator.share) await navigator.share({ title: 'Socrate · Philo 101', text, url: url.href });
+    else { await navigator.clipboard.writeText(url.href); toast('Lien copié : ' + text); }
+  } catch (e) { if (e && e.name !== 'AbortError') toast('Partage impossible'); }
+};
+
+/* AirPlay (Safari) */
+if (window.WebKitPlaybackTargetAvailabilityEvent){
+  audio.addEventListener('webkitplaybacktargetavailabilitychanged', e => { $('#npAir').hidden = e.availability !== 'available'; });
+  $('#npAir').onclick = () => { try { audio.webkitShowPlaybackTargetPicker(); } catch (e) {} };
+}
+
+/* Retour intelligent : après une pause de plus d'une minute, on reprend 3 s plus tôt */
+audio.addEventListener('pause', () => { pausedAt = Date.now(); renderNP(false); });
+audio.addEventListener('play', () => { if (pausedAt && Date.now() - pausedAt > 60000) audio.currentTime = Math.max(0, audio.currentTime - 3); pausedAt = 0; renderNP(false); });
+audio.addEventListener('timeupdate', () => { npTime(); updateChapter(); rememberLast(); });
+audio.addEventListener('ratechange', () => renderNP(false));
+
+/* Lecture continue */
+audio.addEventListener('ended', () => {
+  if (!store.get('autoNext', true)) return;
+  const i = ORDER.indexOf(srcKey), next = ORDER[i + 1];
+  if (!next || next[0] !== srcKey[0]) return;
+  if (next[0] === 'c') setPart(+next[1]); else setText(+next[1]);
+  startAudio(next, 0); toast('À suivre : ' + info(next).full); renderNP(true);
+});
+
+/* « Reprendre l'écoute » sur l'accueil Philo 101 */
+let lastSaved = 0;
+function rememberLast(){
+  if (!srcKey || !audioStarted || Date.now() - lastSaved < 5000) return; lastSaved = Date.now();
+  store.set('lastPlay', { k: srcKey, title: info(srcKey).full, t: Math.floor(audio.currentTime || 0), dur: Math.round(durOf(srcKey)) });
+}
+audio.addEventListener('pause', () => { lastSaved = 0; rememberLast(); });
+
+/* Clavier (ordinateur) : ← → pour reculer / avancer */
+addEventListener('keydown', e => {
+  if (!audioStarted || !viewer.hidden || /INPUT|TEXTAREA/.test(document.activeElement.tagName) || e.target.closest && e.target.closest('[role=slider]')) return;
+  if (e.key === 'Escape' && npOpen) { closeNP(); return; }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); $('#pBack').click(); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); $('#pFwd').click(); }
+});
 
 /* ---------- Navigation dans l'app Philo 101 ---------- */
 $('.back').addEventListener('click', () => { haptic(4); try{ sessionStorage.setItem('philo:nav', 'back'); }catch(e){} });
@@ -1335,6 +1636,15 @@ setPart(part, true);
 applyTs(store.get('ts', true));
 setSheet(innerHeight); sheet.style.visibility='visible';
 setSpeed(store.get('speed', 1)); $('#pLyrics').setAttribute('aria-pressed', lyricsOn);
+(() => {
+  const q = new URLSearchParams(location.search), k = q.get('ecoute'), t = +q.get('t') || 0;
+  if (!k || !ORDER.includes(k)) return;
+  history.replaceState(null, '', location.pathname);
+  if (k[0] === 'c') { show('cours'); setPart(+k[1], false); } else { show('textes'); setText(+k[1]); }
+  loadSource(k); pendingSeek = t; if (audio.readyState >= 1) { audio.currentTime = t; pendingSeek = null; }
+  audioStarted = true; document.body.classList.add('audio-on'); updatePlayerVisibility(); indexSegs(); updateTime();
+  toast(`Prêt à ${fmt(t)} · touchez lecture`);
+})();
 </script>
 </body>
 </html>

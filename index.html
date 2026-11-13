@@ -86,6 +86,17 @@ h1{font-family:var(--serif);font-size:44px;line-height:1.05;letter-spacing:-.02e
 .seg-thumb{position:absolute;top:2px;bottom:2px;left:2px;width:calc((100% - 4px)/3);border-radius:8px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.05);transition:transform .32s var(--ease-drawer)}
 .seg button{position:relative;z-index:1;min-height:36px;padding:6px 0;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:color .2s ease}
 .seg button[aria-pressed="true"]{color:var(--ink)}
+.resume{display:none;align-items:center;gap:14px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:14px 16px;margin:0 0 4px;transition:transform .14s var(--ease-out);touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.resume.show{display:flex}
+.resume:active{transform:scale(.98)}
+.resume .play{flex:none;width:44px;height:44px;border-radius:22px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.resume .play svg{width:18px;height:18px}
+.resume .txt{flex:1;min-width:0}
+.resume b{display:block;font-size:15.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resume small{display:block;font-size:13px;color:var(--ink-3)}
+.resume .bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:8px;overflow:hidden}
+.resume .bar i{display:block;height:100%;background:var(--accent);transform-origin:0 0}
+@media (prefers-reduced-motion:reduce){.resume{transition:none}}
 footer{color:var(--ink-3);font-size:13px;margin-top:28px;text-align:center}
 @media (hover:hover) and (pointer:fine){.card:not(.soon):hover{transform:translateY(-2px)}.link:hover{background:var(--bg-2)}}
 /* Transitions entre les pages (Safari 18.2+, Chrome 126+) */
@@ -113,6 +124,11 @@ html.vt-back::view-transition-new(root){animation-name:vt-in-back}
     <button class="ok" id="installBtn" hidden>Installer</button>
     <button class="x" id="installClose" aria-label="Fermer">×</button>
   </div>
+
+  <a class="resume" id="resume" href="socrate/">
+    <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.7l-10-6.5A1 1 0 0 0 8 5.5z"/></svg></span>
+    <span class="txt"><small>Reprendre l’écoute</small><b id="resumeTitle"></b><small id="resumeLeft"></small><span class="bar"><i id="resumeBar"></i></span></span>
+  </a>
 
   <div class="h">Modules</div>
   <a class="card" href="socrate/">
@@ -175,6 +191,19 @@ html.vt-back::view-transition-new(root){animation-name:vt-in-back}
   document.querySelectorAll('.seg [data-theme]').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
   const saved = get('philo:theme') || get('socrate:theme') || 'auto';
   applyTheme(['auto', 'light', 'dark'].includes(saved) ? saved : 'auto');
+
+  /* Reprendre l'écoute : dernier audio écouté dans un module (lien qui rouvre l'app à la bonne seconde) */
+  const last = get('socrate:lastPlay');
+  if (last && last.k && last.dur && last.t > 5 && last.dur - last.t > 15) {
+    const fmt = s => { s = Math.floor(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
+    const r = $('#resume');
+    r.href = `socrate/?ecoute=${encodeURIComponent(last.k)}&t=${last.t}`;
+    r.setAttribute('aria-label', `Reprendre l’écoute : ${last.title}, à ${fmt(last.t)}`);
+    $('#resumeTitle').textContent = last.title;
+    $('#resumeLeft').textContent = `Il reste ${Math.max(1, Math.round((last.dur - last.t) / 60))} min · à ${fmt(last.t)}`;
+    $('#resumeBar').style.transform = `scaleX(${Math.min(1, last.t / last.dur).toFixed(3)})`;
+    r.classList.add('show');
+  }
 
   /* Progression du module Socrate */
   const deck = get('socrate:deck'), quiz = get('socrate:quiz'), pos = get('socrate:audioPos') || {};

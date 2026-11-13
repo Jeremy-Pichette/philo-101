@@ -20,6 +20,8 @@ Le site est une **PWA** (Progressive Web App) : il s’installe sur l’écran d
 
 - **Cours** : transcription intégrale des deux séances, par chapitres, avec recherche
 - **Écoute + paroles en direct** : lecteur audio intégré ; surlignage **mot à mot** (comme Apple Music, avec une lueur sur le mot en cours) ou par phrase, au choix dans Réglages ; le texte défile avec la voix (touchez une phrase ou un horodatage pour y sauter, vitesse 0,75× à 2×, contrôles sur l’écran verrouillé)
+- **Lecteur plein écran** (toucher le mini-lecteur) : chapitres (liste + repères sur la barre), minuterie de sommeil (5 min à 1 h ou fin du chapitre), signets horodatés, partage d’un moment (lien qui rouvre l’app à la seconde près), « À suivre » avec lecture continue, temps restant, AirPlay, −15 s / +30 s, retour intelligent de 3 s après une longue pause, flèches du clavier
+- **Accueil** : carte « Reprendre l’écoute » à l’endroit exact
 - **Textes** : *Apologie* (§ 1-8) et *Criton* (§ 1-101) + corrigé des deux fiches d’activité
 - **Textes lus à voix haute** : voix de synthèse pré-enregistrées, la phrase lue s’illumine ; toucher un numéro de § ou une phrase pour y sauter. *Criton* : deux voix expressives Gemini TTS (Socrate « Charon », Criton « Fenrir ») avec un jeu adapté à chaque réplique ; *Apologie* : voix Piper « Tom » (passage à Gemini en cours)
 - **L’essentiel** : les 23 diapositives du cours (vignettes + visionneuse plein écran, PDF), synthèse en 8 sections et lexique
